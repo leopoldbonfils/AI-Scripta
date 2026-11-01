@@ -1,7 +1,7 @@
 :root { --bg: #101111; --panel: #1d1d1d; --line: #323130; --text: #e8e5df; --muted: #98938b; --amber: #f4a900; --amber-soft: #ffc766; }
-* { box-sizing: border-box; } html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); } body { font-family: "Courier New", monospace; font-size: 12px; } a { color: inherit; text-decoration: none; } button { font: inherit; }
+* { box-sizing: border-box; } html, body { margin: 0; min-height: 100%; background: #ffffff; color: #111827; } body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; } a { color: inherit; text-decoration: none; } button { font: inherit; }
 .sidebar { background: #10121a; background: linear-gradient(180deg, #11131c 0%, #0d0f17 100%); border-right: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; height: 100vh; left: 0; padding: 24px 14px 20px; position: fixed; top: 0; width: 236px; z-index: 10; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; box-sizing: border-box; user-select: none; }.brand { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; margin: 0 0 26px; text-align: center; }.brand-icon-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 6px; filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.2)); }.brand-title { color: #ffffff; font-size: 17px; font-weight: 700; letter-spacing: -0.2px; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; }.brand-ai { color: #f59e0b; font-weight: 700; }.sidebar-nav { display: flex; flex-direction: column; gap: 6px; }.nav-item { display: flex; align-items: center; gap: 13px; padding: 10.5px 14px; border-radius: 12px; color: #b0b4c3; font-size: 13.5px; font-weight: 500; text-decoration: none; border: 1px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.1px; }.nav-icon { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; color: #8a8f9f; flex-shrink: 0; transition: color 0.2s ease; }.nav-text { white-space: nowrap; font-family: inherit; }.nav-item:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }.nav-item:hover .nav-icon { color: #ffffff; }.nav-item.active { background: linear-gradient(135deg, #443220 0%, #2e2216 100%); border-color: rgba(245, 158, 11, 0.28); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 205, 120, 0.18); color: #ffffff; font-weight: 600; }.nav-item.active .nav-icon { color: #ffffff; }.sidebar-bottom { margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; }.profile { display: flex; align-items: center; gap: 12px; padding: 4px 8px; }.avatar { width: 36px; height: 36px; min-width: 36px; border-radius: 50%; overflow: hidden; border: 1.5px solid rgba(245, 158, 11, 0.25); background: #181a24; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }.avatar-image { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }.topbar-avatar { align-items: center; background: #736558; border: 2px solid #a48155; border-radius: 50%; color: #f9d99a; display: flex; font-size: 9px; font-weight: bold; height: 25px; width: 25px; justify-content: center; }.profile-copy { display: flex; flex-direction: column; gap: 2px; }.profile-copy strong { color: #ffffff; font-size: 13.5px; font-weight: 600; line-height: 1.2; font-family: inherit; }.profile-copy span { color: #858b9e; font-size: 11.5px; font-weight: 400; font-family: inherit; }.sidebar-divider { height: 1px; background: rgba(255, 255, 255, 0.07); margin: 12px 6px; }.logout { display: flex; align-items: center; gap: 12px; padding: 8px 10px; width: 100%; border: none; background: transparent; cursor: pointer; color: #b0b4c3; font-size: 13.5px; font-weight: 500; border-radius: 10px; transition: all 0.2s ease; text-align: left; font-family: inherit; }.logout-icon { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; color: #8a8f9f; flex-shrink: 0; transition: color 0.2s ease; }.logout:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }.logout:hover .logout-icon { color: #ffffff; }
-.app-main { margin-left: 236px; min-height: 100vh; background: #ffffff; color: #111827; width: calc(100% - 236px); position: relative; overflow-x: hidden; box-sizing: border-box; }.topbar { align-items: center; border-bottom: 1px solid #242423; display: flex; height: 63px; justify-content: space-between; padding: 0 42px; }.breadcrumb { color: #e9e4db; font-family: Impact, Haettenschweiler, sans-serif; font-size: 13px; letter-spacing: .8px; }.breadcrumb span { color: #5d5a56; margin: 0 7px; }.topbar-actions { align-items: center; display: flex; gap: 18px; }.topbar-icon { color: #b5aea4; font-size: 17px; }.topbar-avatar { height: 25px; width: 25px; }.hero { align-items: end; display: flex; justify-content: space-between; padding: 36px 42px 28px; }.hero .eyebrow { margin: 0 0 9px; }.welcome { color: #bdb7ad; font-size: 10px; margin: 0 0 6px; }.welcome span { color: var(--amber); } h1, h2, h3 { font-family: Impact, Haettenschweiler, sans-serif; font-weight: 400; text-transform: uppercase; } h1 { font-size: clamp(32px, 4.3vw, 56px); letter-spacing: .3px; line-height: .95; margin: 0; max-width: 750px; } h1 em { color: var(--amber); font-style: normal; }.hero-stats { background: #1b1b1a; border: 1px solid #252422; display: flex; gap: 29px; padding: 11px 16px; }.hero-stats span { color: #817d75; font-size: 8px; text-transform: uppercase; }.hero-stats b { color: var(--amber-soft); display: block; font-family: Impact, Haettenschweiler, sans-serif; font-size: 17px; font-weight: 400; margin-bottom: 2px; }
+.app-main { margin-left: 236px; min-height: 100vh; background: #ffffff; color: #111827; width: calc(100% - 236px); position: relative; overflow-x: hidden; box-sizing: border-box; }.topbar { align-items: center; border-bottom: 1px solid #242423; display: flex; height: 63px; justify-content: space-between; padding: 0 42px; }.breadcrumb { color: #e9e4db; font-family: Impact, Haettenschweiler, sans-serif; font-size: 13px; letter-spacing: .8px; }.breadcrumb span { color: #5d5a56; margin: 0 7px; }.topbar-actions { align-items: center; display: flex; gap: 18px; }.topbar-icon { color: #b5aea4; font-size: 17px; }.topbar-avatar { height: 25px; width: 25px; }.hero { align-items: end; display: flex; justify-content: space-between; padding: 36px 42px 28px; }.hero .eyebrow { margin: 0 0 9px; }.welcome { color: #bdb7ad; font-size: 10px; margin: 0 0 6px; }.welcome span { color: var(--amber); } h1, h2, h3 { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-weight: 700; margin: 0; } h1 { font-size: clamp(32px, 4.3vw, 56px); letter-spacing: .3px; line-height: .95; margin: 0; max-width: 750px; } h1 em { color: var(--amber); font-style: normal; }.hero-stats { background: #1b1b1a; border: 1px solid #252422; display: flex; gap: 29px; padding: 11px 16px; }.hero-stats span { color: #817d75; font-size: 8px; text-transform: uppercase; }.hero-stats b { color: var(--amber-soft); display: block; font-family: Impact, Haettenschweiler, sans-serif; font-size: 17px; font-weight: 400; margin-bottom: 2px; }
 .create-panel { align-items: center; background: linear-gradient(100deg, #202020 68%, #2e281d); border: 1px solid #282725; display: flex; justify-content: space-between; margin: 0 42px 25px; padding: 25px 24px; }.create-panel .eyebrow { margin: 0 0 14px; }.create-panel h2 { font-size: 24px; margin: 0 0 14px; }.intro { color: #b4aea5; font-size: 10px; line-height: 1.65; margin: 0; max-width: 610px; }.suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }.suggestions span { background: #292929; color: #aaa49b; font-size: 8px; padding: 7px 9px; }.primary-button { background: var(--amber); color: #171513; font-size: 10px; font-weight: bold; padding: 13px 21px; text-transform: uppercase; white-space: nowrap; }.primary-button span { font-size: 15px; margin-right: 7px; vertical-align: -1px; }
 .dashboard-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr) 294px; padding: 0 42px 40px; }.section-heading { align-items: center; border-bottom: 1px solid #2b2a28; display: flex; justify-content: space-between; margin-bottom: 15px; min-height: 40px; }.section-heading h2, .rail-heading h2 { font-size: 14px; margin: 0; }.tabs { align-self: stretch; display: flex; gap: 19px; }.tabs span { align-items: center; color: #858078; display: flex; font-size: 8px; text-transform: uppercase; white-space: nowrap; }.tabs .selected { border-bottom: 2px solid var(--amber); color: var(--amber-soft); }.movie-card { background: var(--panel); border-left: 2px solid var(--amber); margin-bottom: 14px; padding: 15px; }.movie-card:last-child { border-left-color: #b4a888; }.movie-card-top, .movie-card-bottom { align-items: center; display: flex; justify-content: space-between; }.tag { background: #34332f; color: #d0c7b4; font-size: 7px; letter-spacing: .5px; padding: 4px 6px; text-transform: uppercase; }.movie-meta { color: #77736d; font-size: 8px; margin-left: 8px; }.progress-label, .ready { color: var(--amber-soft); font-size: 8px; text-transform: uppercase; }.movie-card h3 { font-size: 18px; letter-spacing: .2px; margin: 11px 0 10px; }.progress-track { background: #111; height: 5px; }.progress-track span { background: var(--amber); display: block; height: 100%; }.movie-card:last-child .progress-track span { background: var(--amber-soft); }.movie-card-bottom { margin-top: 14px; }.movie-stats { color: #aaa49a; display: flex; font-size: 8px; gap: 17px; }.card-action { background: #353533; color: #ece7dc; font-family: Impact, Haettenschweiler, sans-serif; font-size: 11px; padding: 6px 10px; text-transform: uppercase; }.card-action span { color: var(--amber); font-size: 15px; margin-left: 6px; }
 .right-rail { display: flex; flex-direction: column; gap: 15px; }.rail-panel, .sync-panel { background: #1d1d1d; padding: 16px 15px; }.rail-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: 16px; }.rail-heading h2 { color: var(--amber-soft); font-size: 12px; }.rail-heading > span { color: #79746c; font-size: 7px; text-transform: uppercase; }.rail-panel p { color: #b3ada3; font-size: 9px; line-height: 1.6; }.rail-panel p b { color: #e5dfd4; }.tips p + p { border-top: 1px solid #302e2b; margin-top: 13px; padding-top: 13px; }.rail-panel a { color: var(--amber-soft); font-size: 8px; text-transform: uppercase; }.status-dot { background: var(--amber); border-radius: 50%; height: 5px; width: 5px; }.inspiration-image { background: #171918; height: 112px; overflow: hidden; padding: 75px 10px 8px; position: relative; }.inspiration-image:before { background: linear-gradient(118deg, #191c1b 36%, #765d3d 37%, #272d29 49%, #101211 75%); content: ""; inset: 0; opacity: .8; position: absolute; }.image-light { background: #f8ca7c; filter: blur(11px); height: 90px; left: 53%; opacity: .8; position: absolute; top: -28px; transform: rotate(35deg); width: 17px; }.inspiration-image span { color: #e6ddcc; font-size: 7px; position: relative; text-transform: uppercase; }.inspiration .eyebrow { margin: 15px 0 6px; }.inspiration p { margin-bottom: 0; }.sync-panel { align-items: center; display: flex; font-size: 8px; justify-content: space-between; text-transform: uppercase; }.sync-panel span { color: #9d9890; }.sync-panel strong { color: var(--amber); font-size: 8px; } footer { border-top: 1px solid #242423; color: #e7e0d5; font-family: Impact, Haettenschweiler, sans-serif; font-size: 11px; letter-spacing: .4px; padding: 21px 42px; } footer span { color: #8e8981; font-family: "Courier New", monospace; font-size: 8px; } footer small { color: #77736d; float: right; font-family: "Courier New", monospace; font-size: 7px; }
@@ -20,14 +20,14 @@
 
 
 /* ========================================================
-   LANDING / HOME PAGE STYLES (MATCHING IMAGE 1 DESIGN)
+   LANDING / HOME PAGE STYLES (MATCHING IMAGE 2 EXACT DESIGN)
    ======================================================== */
 .landing-layout {
   background: #ffffff;
   color: #111827;
   min-height: 100vh;
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
   overflow-x: hidden;
 }
 
@@ -38,6 +38,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.landing-container * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
 }
 
 /* Header & Nav */
@@ -49,9 +54,9 @@
 }
 
 .landing-header-inner {
-  max-width: 1140px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 16px 28px;
+  padding: 18px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -88,36 +93,42 @@
 }
 
 .landing-brand-text {
-  font-size: 19px;
-  font-weight: 750;
-  color: #111827;
-  letter-spacing: -0.02em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+  display: flex;
+  align-items: center;
 }
 
 .landing-brand-ai {
-  color: #111827;
-  font-weight: 750;
-  margin-left: 3px;
+  color: #111827 !important;
+  font-weight: 800 !important;
+  margin-left: 4px !important;
 }
 
 .landing-nav {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 32px;
 }
 
 .landing-nav-link {
-  color: #4b5563;
-  font-size: 14.5px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.15s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  color: #4b5563 !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease !important;
+  text-transform: none !important;
 }
 
 .landing-nav-link:hover,
 .landing-nav-link.active {
-  color: #111827;
-  font-weight: 600;
+  color: #111827 !important;
+  font-weight: 600 !important;
 }
 
 .landing-actions {
@@ -126,22 +137,24 @@
 }
 
 .landing-btn-signin {
-  background: #0f172a;
-  color: #ffffff;
-  border: 1.5px solid #334155;
-  border-radius: 9px;
-  padding: 7px 20px;
-  font-weight: 550;
-  font-size: 14px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1.5px solid #334155 !important;
+  border-radius: 9px !important;
+  padding: 8px 22px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-transform: none !important;
 }
 
 .landing-btn-signin:hover {
-  background: #1e293b;
-  border-color: #475569;
+  background: #1e293b !important;
+  border-color: #475569 !important;
 }
 
 /* Hero Section */
@@ -149,15 +162,15 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  padding: 10px 0 16px;
+  padding: 16px 0 20px;
 }
 
 .landing-hero-inner {
-  max-width: 1140px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 32px;
   position: relative;
-  min-height: 440px;
+  min-height: 430px;
   display: flex;
   align-items: center;
 }
@@ -165,93 +178,113 @@
 .landing-hero-content {
   position: relative;
   z-index: 10;
-  max-width: 480px;
-  padding: 10px 0 20px;
+  max-width: 490px;
+  padding: 10px 0 24px;
 }
 
 .landing-hero-title {
-  display: flex;
-  flex-direction: column;
-  font-size: clamp(34px, 3.8vw, 52px);
-  font-weight: 850;
-  line-height: 1.1;
-  letter-spacing: -0.035em;
-  color: #0a0a0c;
-  margin: 0 0 18px;
-  font-family: inherit;
+  display: flex !important;
+  flex-direction: column !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: clamp(42px, 4.6vw, 60px) !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.03em !important;
+  color: #0f172a !important;
+  margin: 0 0 18px !important;
+  text-transform: none !important;
+}
+
+.landing-hero-title span {
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+  color: inherit !important;
+  text-transform: none !important;
+  display: block;
 }
 
 .landing-hero-desc {
-  font-size: 15.5px;
-  line-height: 1.55;
-  color: #4b5563;
-  margin: 0 0 26px;
-  max-width: 420px;
-  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.55 !important;
+  color: #4b5563 !important;
+  margin: 0 0 28px !important;
+  max-width: 440px !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
 }
 
 .landing-hero-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
 }
 
 .landing-btn-primary {
-  background: #f59e0b;
-  color: #111827;
-  font-size: 14.5px;
-  font-weight: 650;
-  padding: 12px 22px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
+  background: #f59e0b !important;
+  background: linear-gradient(180deg, #fbb024 0%, #f59e0b 100%) !important;
+  color: #111827 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  text-transform: none !important;
 }
 
 .landing-btn-primary:hover {
-  background: #d97706;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+  background: #d97706 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45) !important;
 }
 
 .landing-btn-secondary {
-  background: #f3f4f6;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
-  font-size: 14.5px;
-  font-weight: 550;
-  padding: 12px 20px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8fafc !important;
+  color: #1f2937 !important;
+  border: 1px solid #e2e8f0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  padding: 12px 22px !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  text-decoration: none !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-transform: none !important;
 }
 
 .landing-btn-secondary:hover {
-  background: #e5e7eb;
-  border-color: #d1d5db;
-  transform: translateY(-1px);
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Right Hero Visual Graphic */
 .landing-hero-visual {
   position: absolute;
   right: 0;
-  top: -20px;
+  top: -15px;
   bottom: 0;
-  width: 62%;
-  max-width: 720px;
-  height: calc(100% + 30px);
+  width: 58%;
+  max-width: 680px;
+  height: 100%;
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
 }
 
 .landing-hero-img {
@@ -263,85 +296,89 @@
 }
 
 .landing-hero-visual-blend {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #ffffff 12%, rgba(255, 255, 255, 0.65) 30%, rgba(255, 255, 255, 0) 50%);
-  z-index: 2;
-  pointer-events: none;
+  display: none !important;
 }
 
 /* How It Works Section */
 .landing-steps-section {
   width: 100%;
-  padding: 20px 0 40px;
+  padding: 24px 0 44px !important;
   position: relative;
   z-index: 10;
 }
 
 .landing-steps-inner {
-  max-width: 1140px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 32px;
 }
 
 .landing-steps-heading {
-  text-align: center;
-  font-size: 23px;
-  font-weight: 750;
-  color: #0f172a;
-  margin: 0 0 24px;
-  letter-spacing: -0.02em;
+  text-align: center !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  margin: 0 0 24px !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
 }
 
 .landing-steps-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 16px !important;
 }
 
 .landing-step-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 22px 14px 18px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
-  position: relative;
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 14px !important;
+  padding: 24px 16px 20px !important;
+  text-align: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
 }
 
 .landing-step-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  border-color: #cbd5e1;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+  border-color: #cbd5e1 !important;
 }
 
 .landing-step-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f59e0b;
-  color: #18181b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: #fef3c7 !important;
+  border: 1.5px solid #fde68a !important;
+  color: #b45309 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 14px !important;
+  box-shadow: none !important;
 }
 
 .landing-step-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 6px;
-  letter-spacing: -0.01em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 750 !important;
+  color: #111827 !important;
+  margin: 0 0 6px !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
 }
 
 .landing-step-desc {
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: #4b5563;
-  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+  color: #64748b !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
 }
 
 /* Features Highlight Box */
