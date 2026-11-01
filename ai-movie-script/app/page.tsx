@@ -110,7 +110,7 @@ export default function HomePage() {
 					</nav>
 
 					<div className="landing-actions">
-						<Link href="/dashboard" className="landing-btn-signin">
+						<Link href="/login" className="landing-btn-signin">
 							Sign In
 						</Link>
 					</div>
