@@ -75,177 +75,143 @@ export function SignUpView() {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setLoading(true);
-		// Navigate to dashboard/movies on registration
 		setTimeout(() => {
 			router.push("/movies");
-		}, 600);
+		}, 500);
 	};
 
 	return (
 		<div className="signup-page-wrapper">
-			<div className="signup-container">
-				{/* Left Hero Cinematic Studio Area */}
-				<div className="signup-hero-left">
-					<div className="signup-brand-header">
-						<div className="signup-clapper-icon">
-							<svg width="42" height="34" viewBox="0 0 48 38" fill="none">
-								<rect x="2" y="10" width="44" height="26" rx="4" fill="#ffffff" />
-								{/* Zebra top stick */}
-								<g transform="rotate(-10 2 10)">
-									<rect x="2" y="2" width="44" height="8" rx="2" fill="#ffffff" />
-									<path d="M8 10L14 2H18L12 10H8Z" fill="#0f172a" />
-									<path d="M20 10L26 2H30L24 10H20Z" fill="#0f172a" />
-									<path d="M32 10L38 2H42L36 10H32Z" fill="#0f172a" />
-								</g>
-								{/* Play triangle */}
-								<polygon points="21 18 29 23 21 28" fill="#0f172a" />
-							</svg>
+			<div className="signup-overlay-container">
+				{/* Only the white sign up card */}
+				<div className="signup-card">
+					<h1 className="signup-card-title">Create Your Account</h1>
+					<p className="signup-card-subtitle">Start your journey with FilmForge AI</p>
+
+					<form onSubmit={handleSubmit} className="signup-form">
+						{/* Full Name */}
+						<div className="signup-field-group">
+							<div className="signup-field-icon">
+								<UserIcon />
+							</div>
+							<div className="signup-field-content">
+								<label className="signup-field-label" htmlFor="fullName">
+									Full Name
+								</label>
+								<input
+									id="fullName"
+									type="text"
+									required
+									value={fullName}
+									onChange={(e) => setFullName(e.target.value)}
+									placeholder="Enter your full name"
+									className="signup-input"
+								/>
+							</div>
 						</div>
-						<div className="signup-brand-text">
-							<h2 className="signup-brand-name">FilmForge AI</h2>
-							<p className="signup-brand-tagline">Dream. Write. Create.</p>
+
+						{/* Email Address */}
+						<div className="signup-field-group">
+							<div className="signup-field-icon">
+								<MailIcon />
+							</div>
+							<div className="signup-field-content">
+								<label className="signup-field-label" htmlFor="emailAddress">
+									Email Address
+								</label>
+								<input
+									id="emailAddress"
+									type="email"
+									required
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									placeholder="Enter your email address"
+									className="signup-input"
+								/>
+							</div>
 						</div>
-					</div>
 
-					<div className="signup-hero-copy">
-						<h1 className="signup-hero-title">Join Our Creative Community</h1>
-						<p className="signup-hero-desc">
-							Turn your ideas into amazing movie scripts with the power of AI.
-						</p>
-					</div>
-				</div>
-
-				{/* Right Form Card */}
-				<div className="signup-form-column">
-					<div className="signup-card">
-						<h2 className="signup-card-title">Create Your Account</h2>
-						<p className="signup-card-subtitle">Start your journey with FilmForge AI</p>
-
-						<form onSubmit={handleSubmit} className="signup-form">
-							{/* Full Name */}
-							<div className="signup-field-group">
-								<div className="signup-field-icon">
-									<UserIcon />
-								</div>
-								<div className="signup-field-content">
-									<label className="signup-field-label" htmlFor="fullName">
-										Full Name
-									</label>
-									<input
-										id="fullName"
-										type="text"
-										required
-										value={fullName}
-										onChange={(e) => setFullName(e.target.value)}
-										placeholder="Enter your full name"
-										className="signup-input"
-									/>
-								</div>
+						{/* Password */}
+						<div className="signup-field-group">
+							<div className="signup-field-icon">
+								<LockIcon />
 							</div>
-
-							{/* Email Address */}
-							<div className="signup-field-group">
-								<div className="signup-field-icon">
-									<MailIcon />
-								</div>
-								<div className="signup-field-content">
-									<label className="signup-field-label" htmlFor="emailAddress">
-										Email Address
-									</label>
-									<input
-										id="emailAddress"
-										type="email"
-										required
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										placeholder="Enter your email address"
-										className="signup-input"
-									/>
-								</div>
+							<div className="signup-field-content">
+								<label className="signup-field-label" htmlFor="password">
+									Password
+								</label>
+								<input
+									id="password"
+									type="password"
+									required
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									placeholder="Create a password (min. 8 characters, with uppercase, lowercase and number)"
+									className="signup-input"
+								/>
 							</div>
+						</div>
 
-							{/* Password */}
-							<div className="signup-field-group">
-								<div className="signup-field-icon">
-									<LockIcon />
-								</div>
-								<div className="signup-field-content">
-									<label className="signup-field-label" htmlFor="password">
-										Password
-									</label>
-									<input
-										id="password"
-										type="password"
-										required
-										value={password}
-										onChange={(e) => setPassword(e.target.value)}
-										placeholder="Create a password (min. 8 characters, with uppercase, lowercase and number)"
-										className="signup-input"
-									/>
-								</div>
+						{/* Confirm Password */}
+						<div className="signup-field-group">
+							<div className="signup-field-icon">
+								<LockIcon />
 							</div>
-
-							{/* Confirm Password */}
-							<div className="signup-field-group">
-								<div className="signup-field-icon">
-									<LockIcon />
-								</div>
-								<div className="signup-field-content">
-									<label className="signup-field-label" htmlFor="confirmPassword">
-										Confirm Password
-									</label>
-									<input
-										id="confirmPassword"
-										type="password"
-										required
-										value={confirmPassword}
-										onChange={(e) => setConfirmPassword(e.target.value)}
-										placeholder="Confirm your password"
-										className="signup-input"
-									/>
-								</div>
+							<div className="signup-field-content">
+								<label className="signup-field-label" htmlFor="confirmPassword">
+									Confirm Password
+								</label>
+								<input
+									id="confirmPassword"
+									type="password"
+									required
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									placeholder="Confirm your password"
+									className="signup-input"
+								/>
 							</div>
+						</div>
 
-							{/* Sign Up Button */}
-							<button type="submit" disabled={loading} className="signup-submit-btn">
-								<UserPlusIcon />
-								<span>{loading ? "Creating Account..." : "Sign Up"}</span>
-							</button>
+						{/* Sign Up Button */}
+						<button type="submit" disabled={loading} className="signup-submit-btn">
+							<UserPlusIcon />
+							<span>{loading ? "Creating Account..." : "Sign Up"}</span>
+						</button>
 
-							{/* Divider */}
-							<div className="signup-divider">
-								<span>or</span>
-							</div>
+						{/* Divider */}
+						<div className="signup-divider">
+							<span>or</span>
+						</div>
 
-							{/* Continue with Google */}
-							<button
-								type="button"
-								onClick={() => router.push("/movies")}
-								className="signup-social-btn"
-							>
-								<GoogleIcon />
-								<span>Continue with Google</span>
-							</button>
+						{/* Continue with Google */}
+						<button
+							type="button"
+							onClick={() => router.push("/movies")}
+							className="signup-social-btn"
+						>
+							<GoogleIcon />
+							<span>Continue with Google</span>
+						</button>
 
-							{/* Continue with Microsoft */}
-							<button
-								type="button"
-								onClick={() => router.push("/movies")}
-								className="signup-social-btn"
-							>
-								<MicrosoftIcon />
-								<span>Continue with Microsoft</span>
-							</button>
+						{/* Continue with Microsoft */}
+						<button
+							type="button"
+							onClick={() => router.push("/movies")}
+							className="signup-social-btn"
+						>
+							<MicrosoftIcon />
+							<span>Continue with Microsoft</span>
+						</button>
 
-							{/* Already have an account */}
-							<div className="signup-footer-link">
-								<span>Already have an account? </span>
-								<Link href="/login" className="signup-signin-link">
-									Sign In
-								</Link>
-							</div>
-						</form>
-					</div>
+						{/* Already have an account */}
+						<div className="signup-footer-link">
+							<span>Already have an account? </span>
+							<Link href="/login" className="signup-signin-link">
+								Sign In
+							</Link>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
