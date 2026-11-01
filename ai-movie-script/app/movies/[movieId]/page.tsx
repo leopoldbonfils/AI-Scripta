@@ -1,1 +1,5 @@
-export default function MoviePage() { return <main>Movie project</main>; }
+import { StudioWorkspace } from "../../../components/templates/StudioWorkspace";
+
+export default function MoviePage() {
+	return <StudioWorkspace initialView="screenplay" />;
+}

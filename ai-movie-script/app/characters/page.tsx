@@ -1,16 +1,358 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
-const characters = [
-	{ name: "Eric Mugisha", role: "Software Engineer · Kigali Sector 4", type: "Lead · Protagonist", age: "24 yrs", quote: "A brilliant young coder caught between family duty and an explosive truth.", initials: "EM", tag: "Reluctant hero", goal: "Discover the mystery signal and protect his younger sister from the syndicate before midnight." },
-	{ name: "Sarah Ndagiro", role: "Investigative Journalist · The New Herald", type: "Supporting · Ally", age: "27 yrs", quote: "Relentless reporter chasing the network's financial trail.", initials: "SN", tag: "Driven truth seeker", goal: "Expose the network before her source disappears for good." },
-	{ name: "David Kayitare", role: "Telecom Executive · Horizon Apex Group", type: "Antagonist · Catalyst", age: "48 yrs", quote: "Charismatic titan who will protect the grid at any human cost.", initials: "DK", tag: "Ruthless calculated", goal: "Keep the signal buried and his infrastructure empire intact." },
+const initialCharacters = [
+	{
+		id: "eric",
+		name: "Eric",
+		role: "Main Character",
+		roleColor: "#d97706",
+		roleBadgeBg: "#fef3c7",
+		roleBadgeColor: "#92400e",
+		age: "Age: 24",
+		oneLiner: "A talented developer.",
+		bio: "A curious and determined developer.",
+		image: "/images/char-eric.jpg",
+		detailImage: "/images/char-eric-detail.jpg",
+	},
+	{
+		id: "sarah",
+		name: "Sarah",
+		role: "Supporting",
+		roleColor: "#dc2626",
+		roleBadgeBg: "#fee2e2",
+		roleBadgeColor: "#991b1b",
+		age: "Age: 27",
+		oneLiner: "A brave journalist.",
+		bio: "A fearless investigative journalist pursuing the network's secrets.",
+		image: "/images/char-sarah.jpg",
+		detailImage: "/images/char-sarah.jpg",
+	},
+	{
+		id: "david",
+		name: "David",
+		role: "Antagonist",
+		roleColor: "#dc2626",
+		roleBadgeBg: "#fee2e2",
+		roleBadgeColor: "#991b1b",
+		age: "Age: 48",
+		oneLiner: "A powerful rival.",
+		bio: "A powerful executive and ruthless rival protecting his empire at any cost.",
+		image: "/images/char-david.jpg",
+		detailImage: "/images/char-david.jpg",
+	},
 ];
 
 export default function CharactersPage() {
-	const [selected, setSelected] = useState(0);
-	const character = characters[selected];
+	const [charactersList, setCharactersList] = useState(initialCharacters);
+	const [selectedId, setSelectedId] = useState("eric");
+	const [showAddModal, setShowAddModal] = useState(false);
+	const [newCharName, setNewCharName] = useState("");
+	const [newCharRole, setNewCharRole] = useState("Supporting");
+	const [newCharBio, setNewCharBio] = useState("");
 
-	return <div className="characters-page"><header className="topbar"><div className="breadcrumb">FilmForge AI <span>/</span> Characters</div><div className="topbar-actions"><span className="topbar-icon">♧</span><span className="topbar-avatar">BK</span></div></header><main className="characters-workspace"><div className="characters-heading"><div><p className="eyebrow">Act 1 · Dramatis personae <span className="heading-project">Project: The Last Signal</span></p><h1>Meet your characters</h1><p>Every great movie starts with great characters. Develop their motives, flaws, and<br className="desktop-only" /> arcs effortlessly across the manuscript timeline.</p></div><div className="characters-actions"><button type="button">+ Add character</button><button className="amber-action" type="button">✦ Generate characters with AI</button></div></div><div className="character-workspace-grid"><section className="character-index"><div className="character-tabs"><span className="active">All (3)</span><span>Protagonist</span><span>Supporting</span><span>Antagonist</span><b>Index 01–03</b></div>{characters.map((item, index) => <button className={`character-list-card${selected === index ? " active" : ""}`} key={item.name} onClick={() => setSelected(index)} type="button"><div><small>{item.type}</small><strong>{item.name}</strong><span>{item.age}</span></div><p>Role: {item.role}</p><em>“{item.quote}”</em><footer><small>Analytical thinker</small><small>{item.tag}</small></footer></button>)}<div className="character-count">+ 2 more in screenplay<br /><span>Alina Mugisha (16), Inspector Rwema (Police, 52)</span></div><div className="character-map"><span>♧</span><div><b>Character heatmap</b><small>Eric is featured in 38% of script scenes</small></div><strong>⌁⌁</strong></div></section><section className="character-dossier"><header className="dossier-header"><div className="dossier-avatar">{character.initials}</div><div><p>Protagonist dossier #001</p><h2>{character.name}</h2><span>{character.age} · Male · Software Engineer &amp; Cryptographic Archivist</span></div><button type="button">✦ Deepen with AI</button></header><div className="dossier-grid"><article><p>♧ Core archetype</p><h3>{character.tag}</h3><span>Driven by empirical curiosity, dragged into systemic conspiracy by blood ties.</span></article><article><p>◎ Dramatic goal</p><h3>Protect the truth</h3><span>{character.goal}</span></article><article className="wide"><p>△ Internal fear &amp; wound</p><span>Failing his family like his father did; being paralyzed and powerless against institutional corruption.</span></article><article className="wide biography"><p>▣ Backstory manuscript <b>Origin log #88</b></p><span>Raised in Kigali&apos;s tech district, Eric built open-source monitoring tools after losing his father in an unsolved data breach at Horizon Apex. He works graveyard shifts maintaining civilian communications relays while quietly indexing ghost traffic across the city&apos;s fiber infrastructure.</span></article><div className="arc-block"><p>✦ Three-act character arc</p><div><span><b>Act I · Setup</b>Solitary skeptic hiding behind encrypted technical screens.</span><span><b>Act II · Crisis</b>Forced into physical conflict; trusts Sarah with encrypted records.</span><span><b>Act III · Climax</b>Stands up in public defiance against David on live broadcast.</span></div></div><article><p>☼ Voice &amp; dialogue quirks</p><span>Speaks rapidly when anxious, leans on hardware and networking metaphors under extreme stress, and avoids direct eye contact until he has definitively resolved an issue in his mind.</span></article><article><p>✧ Key dramatic relationships</p><span>Sarah Ndagiro: Force ally who relentlessly pushes him beyond his isolation.<br />David Kayitare: Former mentor and ideological adversary.</span></article></div><footer className="dossier-footer"><span>Metric score: 96% complete</span><span>▣ Synchronized with master screenplay</span></footer></section></div><div className="character-actions-bar"><div><b>▣ AI writers&apos; room prompt</b><span>Need stronger arcs, witty dialogue, or stress-test character flaws?</span></div><button type="button">▣ Generate dialogue sample for {character.name.split(" ")[0]}</button><button type="button">ϟ Create scene conflict: Eric vs David</button></div></main><footer>FILMFORGE AI <span>— Archival screenplay &amp; cinematic production suite</span><small>© 2025 FilmForge AI Studio. All rights reserved.</small></footer></div>;
+	const selectedCharacter =
+		charactersList.find((c) => c.id === selectedId) || charactersList[0];
+
+	const handleAddCharacter = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!newCharName.trim()) return;
+
+		const newChar = {
+			id: `char-${Date.now()}`,
+			name: newCharName.trim(),
+			role: newCharRole,
+			roleColor: newCharRole === "Antagonist" ? "#dc2626" : "#2563eb",
+			roleBadgeBg: newCharRole === "Antagonist" ? "#fee2e2" : "#dbeafe",
+			roleBadgeColor: newCharRole === "Antagonist" ? "#991b1b" : "#1e40af",
+			age: "Age: 25",
+			oneLiner: newCharBio || "A newly added story character.",
+			bio: newCharBio || "A newly created character ready for the screenplay.",
+			image: "/images/leopold-hd.png",
+			detailImage: "/images/leopold-hd.png",
+		};
+
+		setCharactersList([...charactersList, newChar]);
+		setSelectedId(newChar.id);
+		setNewCharName("");
+		setNewCharBio("");
+		setShowAddModal(false);
+	};
+
+	return (
+		<div className="char-page-container">
+			{/* Top Header */}
+			<header className="char-header">
+				<div className="char-header-left">
+					<span className="char-header-eyebrow">Characters</span>
+					<h1 className="char-header-title">Meet Your Characters</h1>
+					<p className="char-header-subtitle">
+						Every great movie starts with great characters.
+					</p>
+				</div>
+
+				<div className="char-header-actions">
+					<button
+						type="button"
+						className="char-btn-add"
+						onClick={() => setShowAddModal(true)}
+					>
+						<span>+ Add Character</span>
+					</button>
+
+					<button
+						type="button"
+						className="char-btn-generate"
+						onClick={() => {
+							const aiChar = {
+								id: `ai-${Date.now()}`,
+								name: "Amina",
+								role: "Ally",
+								roleColor: "#059669",
+								roleBadgeBg: "#d1fae5",
+								roleBadgeColor: "#065f46",
+								age: "Age: 26",
+								oneLiner: "A covert frequency specialist.",
+								bio: "An enigmatic telecom hacker with crucial decryption keys.",
+								image: "/images/char-sarah.jpg",
+								detailImage: "/images/char-sarah.jpg",
+							};
+							setCharactersList([...charactersList, aiChar]);
+							setSelectedId(aiChar.id);
+						}}
+					>
+						<span className="char-sparkle">✦</span>
+						<span>Generate with AI</span>
+					</button>
+				</div>
+			</header>
+
+			{/* Character Cards Grid */}
+			<section className="char-cards-grid">
+				{charactersList.map((char) => {
+					const isSelected = char.id === selectedId;
+					return (
+						<article
+							key={char.id}
+							className={`char-card${isSelected ? " selected" : ""}`}
+							onClick={() => setSelectedId(char.id)}
+						>
+							<div className="char-card-thumb">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img
+									src={char.image}
+									alt={char.name}
+									className="char-card-img"
+								/>
+							</div>
+
+							<div className="char-card-body">
+								<h3 className="char-card-name">{char.name}</h3>
+								<span
+									className="char-card-role"
+									style={{ color: char.roleColor }}
+								>
+									{char.role}
+								</span>
+								<p className="char-card-oneliner">{char.oneLiner}</p>
+							</div>
+						</article>
+					);
+				})}
+
+				{/* Add More Card */}
+				<button
+					type="button"
+					className="char-card-add-more"
+					onClick={() => setShowAddModal(true)}
+				>
+					<span className="char-add-plus">+</span>
+					<span className="char-add-label">Add More</span>
+				</button>
+			</section>
+
+			{/* Selected Character Detail Card */}
+			{selectedCharacter && (
+				<section className="char-detail-card">
+					<div className="char-detail-left">
+						<div className="char-detail-thumb">
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img
+								src={selectedCharacter.detailImage}
+								alt={selectedCharacter.name}
+								className="char-detail-img"
+							/>
+						</div>
+
+						<div className="char-detail-info">
+							<div className="char-detail-header-row">
+								<h2 className="char-detail-name">{selectedCharacter.name}</h2>
+								<div className="char-detail-badges">
+									<span
+										className="char-badge role"
+										style={{
+											backgroundColor: selectedCharacter.roleBadgeBg,
+											color: selectedCharacter.roleBadgeColor,
+										}}
+									>
+										{selectedCharacter.role}
+									</span>
+									<span className="char-badge age">
+										{selectedCharacter.age}
+									</span>
+								</div>
+							</div>
+
+							<p className="char-detail-desc">{selectedCharacter.bio}</p>
+						</div>
+					</div>
+
+					<div className="char-detail-actions">
+						<button
+							type="button"
+							className="char-btn-edit"
+							onClick={() => setShowAddModal(true)}
+						>
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2.2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+								<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+							</svg>
+							<span>Edit</span>
+						</button>
+					</div>
+				</section>
+			)}
+
+			{/* Navigation Footer */}
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					marginTop: "28px",
+					paddingTop: "20px",
+					borderTop: "1px solid #f1f5f9",
+				}}
+			>
+				<Link
+					href="/ideas"
+					style={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: "6px",
+						padding: "10px 20px",
+						borderRadius: "20px",
+						background: "#f8fafc",
+						border: "1px solid #e2e8f0",
+						color: "#475569",
+						fontSize: "13.5px",
+						fontWeight: "600",
+						textDecoration: "none",
+					}}
+				>
+					<span>←</span>
+					<span>Back</span>
+				</Link>
+
+				<Link
+					href="/templates"
+					style={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: "6px",
+						padding: "10px 24px",
+						borderRadius: "20px",
+						background: "#f59e0b",
+						color: "#111827",
+						fontSize: "13.5px",
+						fontWeight: "650",
+						textDecoration: "none",
+						boxShadow: "0 2px 10px rgba(245, 158, 11, 0.25)",
+					}}
+				>
+					<span>Continue to Outline</span>
+					<span>→</span>
+				</Link>
+			</div>
+
+			{/* Add / Edit Character Modal */}
+			{showAddModal && (
+				<div
+					className="char-modal-backdrop"
+					onClick={() => setShowAddModal(false)}
+				>
+					<div
+						className="char-modal-content"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h3 className="char-modal-title">Add / Edit Character</h3>
+
+						<form onSubmit={handleAddCharacter} className="char-modal-form">
+							<div className="char-modal-field">
+								<label className="char-modal-label">Character Name</label>
+								<input
+									type="text"
+									placeholder="e.g. Eric, Maya, Victor..."
+									value={newCharName}
+									onChange={(e) => setNewCharName(e.target.value)}
+									className="char-modal-input"
+									required
+								/>
+							</div>
+
+							<div className="char-modal-field">
+								<label className="char-modal-label">Role</label>
+								<select
+									value={newCharRole}
+									onChange={(e) => setNewCharRole(e.target.value)}
+									className="char-modal-select"
+								>
+									<option value="Main Character">Main Character</option>
+									<option value="Supporting">Supporting</option>
+									<option value="Antagonist">Antagonist</option>
+									<option value="Mentor">Mentor</option>
+									<option value="Ally">Ally</option>
+								</select>
+							</div>
+
+							<div className="char-modal-field">
+								<label className="char-modal-label">Description / Bio</label>
+								<textarea
+									placeholder="Describe the character's personality and motivation..."
+									value={newCharBio}
+									onChange={(e) => setNewCharBio(e.target.value)}
+									className="char-modal-textarea"
+									rows={3}
+								/>
+							</div>
+
+							<div className="char-modal-actions">
+								<button
+									type="button"
+									className="char-modal-btn-cancel"
+									onClick={() => setShowAddModal(false)}
+								>
+									Cancel
+								</button>
+								<button type="submit" className="char-modal-btn-save">
+									Save Character
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
+		</div>
+	);
 }
