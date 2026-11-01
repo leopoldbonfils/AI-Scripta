@@ -9,8 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 		pathname === "/signup" ||
 		pathname === "/register" ||
 		pathname === "/login" ||
-		pathname === "/signin" ||
-		pathname?.startsWith("/(auth)");
+		pathname === "/signin";
 
 	if (isAuth) {
 		return <>{children}</>;

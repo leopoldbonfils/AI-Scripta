@@ -1,62 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
+import { FaClapperboard } from "react-icons/fa6";
+import { FiEdit3, FiGitBranch, FiFileText, FiDownload, FiArrowRight } from "react-icons/fi";
 
 function ClapperIcon() {
-	return (
-		<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path
-				d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
-				fill="#111827"
-			/>
-			<rect x="3" y="3.5" width="18" height="4.5" rx="1" fill="#111827" />
-			<path d="M6 3.5l-2 4.5h2.5l2-4.5H6zm4.5 0l-2 4.5h2.5l2-4.5h-3zm4.5 0l-2 4.5h2.5l2-4.5h-3z" fill="#ffffff" />
-			<circle cx="12" cy="14" r="1.8" fill="#ffffff" />
-		</svg>
-	);
+	return <FaClapperboard size={20} color="#111827" />;
 }
 
 function PenIcon() {
-	return (
-		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-			<path d="M12 19l7-7 3 3-7 7-3-3z" />
-			<path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-			<path d="M2 2l7.586 7.586" />
-			<circle cx="11" cy="11" r="2" fill="currentColor" />
-		</svg>
-	);
+	return <FiEdit3 size={15} />;
 }
 
 function StoryIcon() {
-	return (
-		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-			<circle cx="6" cy="6" r="3" />
-			<circle cx="18" cy="6" r="3" />
-			<circle cx="12" cy="18" r="3" />
-			<path d="M8.5 7.5l4 7.5" />
-			<path d="M15.5 7.5l-4 7.5" />
-		</svg>
-	);
+	return <FiGitBranch size={15} />;
 }
 
 function ScreenplayIcon() {
-	return (
-		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-			<rect x="4" y="4" width="16" height="16" rx="2" />
-			<line x1="8" y1="9" x2="16" y2="9" />
-			<line x1="8" y1="13" x2="16" y2="13" />
-			<line x1="8" y1="17" x2="13" y2="17" />
-		</svg>
-	);
+	return <FiFileText size={15} />;
 }
 
 function ExportIcon() {
-	return (
-		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-			<path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
-			<polyline points="16 6 12 2 8 6" />
-			<line x1="12" y1="2" x2="12" y2="15" />
-		</svg>
-	);
+	return <FiDownload size={15} />;
 }
 
 const steps = [
@@ -199,10 +163,7 @@ export default function HomePage() {
 						<div className="landing-features-cta">
 							<Link href="/create" className="landing-btn-primary">
 								<span>Start Writing Today</span>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-									<line x1="5" y1="12" x2="19" y2="12" />
-									<polyline points="12 5 19 12 12 19" />
-								</svg>
+								<FiArrowRight size={16} />
 							</Link>
 						</div>
 					</div>

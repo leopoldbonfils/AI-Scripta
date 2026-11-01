@@ -2,34 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BsFiletypePdf, BsFiletypeDocx, BsFiletypeTxt } from "react-icons/bs";
+import { FiDownload } from "react-icons/fi";
 
 type ExportFormat = "PDF" | "DOCX" | "TXT";
 
 function PdfIcon() {
 	return (
 		<div className="export-doc-icon-wrapper">
-			<svg width="38" height="46" viewBox="0 0 44 52" fill="none">
-				<path
-					d="M4 5C4 3.34315 5.34315 2 7 2H28L40 14V47C40 48.6569 38.6569 50 37 50H7C5.34315 50 4 48.6569 4 47V5Z"
-					fill="#ef4444"
-				/>
-				<path
-					d="M28 2L40 14H31C29.3431 14 28 12.6569 28 11V2Z"
-					fill="#dc2626"
-				/>
-				<text
-					x="22"
-					y="33"
-					fill="#ffffff"
-					fontSize="11"
-					fontWeight="800"
-					fontFamily="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
-					textAnchor="middle"
-					letterSpacing="0.3px"
-				>
-					PDF
-				</text>
-			</svg>
+			<BsFiletypePdf size={38} color="#ef4444" />
 		</div>
 	);
 }
@@ -37,28 +18,7 @@ function PdfIcon() {
 function DocxIcon() {
 	return (
 		<div className="export-doc-icon-wrapper">
-			<svg width="38" height="46" viewBox="0 0 44 52" fill="none">
-				<path
-					d="M4 5C4 3.34315 5.34315 2 7 2H28L40 14V47C40 48.6569 38.6569 50 37 50H7C5.34315 50 4 48.6569 4 47V5Z"
-					fill="#2563eb"
-				/>
-				<path
-					d="M28 2L40 14H31C29.3431 14 28 12.6569 28 11V2Z"
-					fill="#1d4ed8"
-				/>
-				<text
-					x="22"
-					y="33"
-					fill="#ffffff"
-					fontSize="9.5"
-					fontWeight="800"
-					fontFamily="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
-					textAnchor="middle"
-					letterSpacing="0.2px"
-				>
-					DOCX
-				</text>
-			</svg>
+			<BsFiletypeDocx size={38} color="#2563eb" />
 		</div>
 	);
 }
@@ -66,49 +26,13 @@ function DocxIcon() {
 function TxtIcon() {
 	return (
 		<div className="export-doc-icon-wrapper">
-			<svg width="38" height="46" viewBox="0 0 44 52" fill="none">
-				<path
-					d="M4 5C4 3.34315 5.34315 2 7 2H28L40 14V47C40 48.6569 38.6569 50 37 50H7C5.34315 50 4 48.6569 4 47V5Z"
-					fill="#64748b"
-				/>
-				<path
-					d="M28 2L40 14H31C29.3431 14 28 12.6569 28 11V2Z"
-					fill="#475569"
-				/>
-				<text
-					x="22"
-					y="33"
-					fill="#ffffff"
-					fontSize="11"
-					fontWeight="800"
-					fontFamily="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
-					textAnchor="middle"
-					letterSpacing="0.3px"
-				>
-					TXT
-				</text>
-			</svg>
+			<BsFiletypeTxt size={38} color="#64748b" />
 		</div>
 	);
 }
 
 function DownloadTrayIcon() {
-	return (
-		<svg
-			width="15"
-			height="15"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2.2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-		>
-			<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-			<polyline points="7 10 12 15 17 10" />
-			<line x1="12" y1="15" x2="12" y2="3" />
-		</svg>
-	);
+	return <FiDownload size={15} />;
 }
 
 export function ExportScreenplayView({

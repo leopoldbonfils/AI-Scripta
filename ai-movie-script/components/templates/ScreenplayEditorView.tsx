@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FiSave, FiDownload, FiSend } from "react-icons/fi";
+import { FaClapperboard } from "react-icons/fa6";
 
 interface SceneItem {
 	id: string;
@@ -223,20 +225,7 @@ export function ScreenplayEditorView({
 						className="screenplay-btn-save"
 						onClick={handleSave}
 					>
-						<svg
-							width="15"
-							height="15"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-							<polyline points="17 21 17 13 7 13 7 21" />
-							<polyline points="7 3 7 8 15 8" />
-						</svg>
+						<FiSave size={15} />
 						<span>Save</span>
 					</button>
 
@@ -255,20 +244,7 @@ export function ScreenplayEditorView({
 						className="screenplay-btn-export"
 						onClick={onGoToExport}
 					>
-						<svg
-							width="15"
-							height="15"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2.2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-							<polyline points="7 10 12 15 17 10" />
-							<line x1="12" y1="15" x2="12" y2="3" />
-						</svg>
+						<FiDownload size={15} />
 						<span>Export</span>
 					</button>
 				</div>
@@ -342,23 +318,7 @@ export function ScreenplayEditorView({
 				<aside className="screenplay-ai-panel">
 					<div className="screenplay-ai-brand">
 						<div className="screenplay-ai-badge">
-							<svg
-								width="16"
-								height="16"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
-									fill="#18181b"
-								/>
-								<rect x="3" y="3" width="18" height="5" rx="1" fill="#18181b" />
-								<path
-									d="M7 3l-2 5h2.5l2-5H7zm5 0l-2 5h2.5l2-5H12zm5 0l-2 5h2.5l2-5H17z"
-									fill="#fef08a"
-								/>
-							</svg>
+							<FaClapperboard size={15} color="#f59e0b" />
 						</div>
 						<span className="screenplay-ai-brand-text">FilmForge AI</span>
 					</div>
@@ -429,14 +389,7 @@ export function ScreenplayEditorView({
 							className="screenplay-ai-send"
 							aria-label="Send prompt"
 						>
-							<svg
-								width="13"
-								height="13"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-							>
-								<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-							</svg>
+							<FiSend size={13} />
 						</button>
 					</form>
 				</aside>
