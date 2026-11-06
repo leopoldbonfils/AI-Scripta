@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser, FiMail, FiLock, FiUserPlus } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { FaMicrosoft } from "react-icons/fa6";
 
 export function SignUpView() {
 	const router = useRouter();
@@ -26,21 +25,19 @@ export function SignUpView() {
 	return (
 		<div className="signup-page-wrapper">
 			<div className="signup-overlay-container">
-				{/* Only the white sign up card */}
+				{/* Glassmorphic Sign Up Card */}
 				<div className="signup-card">
 					<h1 className="signup-card-title">Create Your Account</h1>
 					<p className="signup-card-subtitle">Start your journey with FilmForge AI</p>
 
 					<form onSubmit={handleSubmit} className="signup-form">
 						{/* Full Name */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiUser size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="fullName">
-									Full Name
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Full Name
+							</legend>
+							<div className="signup-field-inner">
+								<FiUser className="signup-field-icon" size={16} />
 								<input
 									id="fullName"
 									type="text"
@@ -51,17 +48,15 @@ export function SignUpView() {
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Email Address */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiMail size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="emailAddress">
-									Email Address
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Email Address
+							</legend>
+							<div className="signup-field-inner">
+								<FiMail className="signup-field-icon" size={16} />
 								<input
 									id="emailAddress"
 									type="email"
@@ -72,38 +67,34 @@ export function SignUpView() {
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Password */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiLock size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="password">
-									Password
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Password
+							</legend>
+							<div className="signup-field-inner">
+								<FiLock className="signup-field-icon" size={16} />
 								<input
 									id="password"
 									type="password"
 									required
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
-									placeholder="Create a password (min. 8 characters, with uppercase, lowercase and number)"
+									placeholder="Enter your password"
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Confirm Password */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiLock size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="confirmPassword">
-									Confirm Password
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Confirm Password
+							</legend>
+							<div className="signup-field-inner">
+								<FiLock className="signup-field-icon" size={16} />
 								<input
 									id="confirmPassword"
 									type="password"
@@ -114,11 +105,11 @@ export function SignUpView() {
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Sign Up Button */}
 						<button type="submit" disabled={loading} className="signup-submit-btn">
-							<FiUserPlus size={18} />
+							<FiUserPlus size={17} />
 							<span>{loading ? "Creating Account..." : "Sign Up"}</span>
 						</button>
 
@@ -135,16 +126,6 @@ export function SignUpView() {
 						>
 							<FcGoogle size={18} />
 							<span>Continue with Google</span>
-						</button>
-
-						{/* Continue with Microsoft */}
-						<button
-							type="button"
-							onClick={() => router.push("/movies")}
-							className="signup-social-btn"
-						>
-							<FaMicrosoft size={16} color="#00a4ef" />
-							<span>Continue with Microsoft</span>
 						</button>
 
 						{/* Already have an account */}

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { FaMicrosoft } from "react-icons/fa6";
 
 export function LoginView() {
 	const router = useRouter();
@@ -24,21 +23,19 @@ export function LoginView() {
 	return (
 		<div className="signup-page-wrapper">
 			<div className="signup-overlay-container">
-				{/* Only the white sign in card */}
+				{/* Glassmorphic Sign In Card */}
 				<div className="signup-card">
 					<h1 className="signup-card-title">Sign In to Your Account</h1>
 					<p className="signup-card-subtitle">Welcome back to FilmForge AI</p>
 
 					<form onSubmit={handleSubmit} className="signup-form">
 						{/* Email Address */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiMail size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="emailAddress">
-									Email Address
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Email Address
+							</legend>
+							<div className="signup-field-inner">
+								<FiMail className="signup-field-icon" size={16} />
 								<input
 									id="emailAddress"
 									type="email"
@@ -49,17 +46,15 @@ export function LoginView() {
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Password */}
-						<div className="signup-field-group">
-							<div className="signup-field-icon">
-								<FiLock size={18} />
-							</div>
-							<div className="signup-field-content">
-								<label className="signup-field-label" htmlFor="password">
-									Password
-								</label>
+						<fieldset className="signup-field-group">
+							<legend className="signup-field-label">
+								Password
+							</legend>
+							<div className="signup-field-inner">
+								<FiLock className="signup-field-icon" size={16} />
 								<input
 									id="password"
 									type="password"
@@ -70,11 +65,11 @@ export function LoginView() {
 									className="signup-input"
 								/>
 							</div>
-						</div>
+						</fieldset>
 
 						{/* Sign In Button */}
 						<button type="submit" disabled={loading} className="signup-submit-btn">
-							<FiLogIn size={18} />
+							<FiLogIn size={17} />
 							<span>{loading ? "Signing In..." : "Sign In"}</span>
 						</button>
 
@@ -91,16 +86,6 @@ export function LoginView() {
 						>
 							<FcGoogle size={18} />
 							<span>Continue with Google</span>
-						</button>
-
-						{/* Continue with Microsoft */}
-						<button
-							type="button"
-							onClick={() => router.push("/movies")}
-							className="signup-social-btn"
-						>
-							<FaMicrosoft size={16} color="#00a4ef" />
-							<span>Continue with Microsoft</span>
 						</button>
 
 						{/* Don't have an account */}

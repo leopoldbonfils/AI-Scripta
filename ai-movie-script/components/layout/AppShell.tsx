@@ -7,7 +7,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 	const isAuth =
 		pathname === "/signup" ||
-		pathname === "/register" ||
 		pathname === "/login" ||
 		pathname === "/signin";
 
