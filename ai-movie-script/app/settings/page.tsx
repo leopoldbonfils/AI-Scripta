@@ -31,27 +31,6 @@ export default function SettingsPage() {
 						Manage your profile, studio preferences, and AI writing configuration.
 					</p>
 				</div>
-
-				<div className="settings-header-right">
-					{/* Notification Bell */}
-					<button
-						type="button"
-						className="movies-icon-btn"
-						aria-label="Notifications"
-					>
-						<FiBell size={18} />
-					</button>
-
-					{/* Leopold Avatar */}
-					<div className="movies-header-avatar">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src="/images/leopold-hd.png"
-							alt="Leopold"
-							className="movies-avatar-img"
-						/>
-					</div>
-				</div>
 			</header>
 
 			{/* Main Settings Form */}

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { FiSearch, FiBell } from "react-icons/fi";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 const movieItems = [
 	{
@@ -28,8 +28,28 @@ const movieItems = [
 	},
 ];
 
-export default function MyMoviesPage() {
+function MyMoviesContent() {
+	const searchParams = useSearchParams();
 	const [searchQuery, setSearchQuery] = useState("");
+
+	useEffect(() => {
+		const q = searchParams ? searchParams.get("search") || "" : "";
+		setSearchQuery(q);
+	}, [searchParams]);
+
+	useEffect(() => {
+		const handleSearchChange = () => {
+			const params = new URLSearchParams(window.location.search);
+			setSearchQuery(params.get("search") || "");
+		};
+
+		window.addEventListener("moviesSearchChanged", handleSearchChange);
+		window.addEventListener("popstate", handleSearchChange);
+		return () => {
+			window.removeEventListener("moviesSearchChanged", handleSearchChange);
+			window.removeEventListener("popstate", handleSearchChange);
+		};
+	}, []);
 
 	const filteredMovies = movieItems.filter(
 		(movie) =>
@@ -39,60 +59,26 @@ export default function MyMoviesPage() {
 
 	return (
 		<div className="movies-page-container">
-			{/* Top Bar Header */}
-			<header className="movies-header">
-				<div className="movies-header-left">
-					<h1 className="movies-header-title">
-						Good morning, Leopold <span className="movies-wave">👋</span>
-					</h1>
-					<p className="movies-header-subtitle">
-						What would you like to create today?
-					</p>
-				</div>
-
-				<div className="movies-header-right">
-					{/* Search input */}
-					<div className="movies-search-box">
-						<FiSearch className="movies-search-icon" size={16} />
-						<input
-							type="text"
-							placeholder="Search anything..."
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className="movies-search-input"
-						/>
-					</div>
-
-					{/* Notification Bell */}
-					<button
-						type="button"
-						className="movies-icon-btn"
-						aria-label="Notifications"
-					>
-						<FiBell size={18} />
-					</button>
-
-					{/* User Avatar */}
-					<div className="movies-header-avatar">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src="/images/leopold-hd.png"
-							alt="Leopold"
-							className="movies-header-avatar-img"
-						/>
-					</div>
-				</div>
-			</header>
+			{/* Welcome Greeting */}
+			<div className="movies-welcome-header">
+				<h1 className="movies-header-title">
+					Good morning, Leopold <span className="movies-wave">👋</span>
+				</h1>
+				<p className="movies-header-subtitle">
+					What would you like to create today?
+				</p>
+			</div>
 
 			{/* Create a New Movie Banner */}
 			<section className="movies-hero-banner">
 				<div className="movies-hero-bg">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
-						src="/images/create-movie-banner.jpg"
+						src="/images/create-movie-banner.png"
 						alt="Cinema reel and popcorn at sunset"
 						className="movies-hero-bg-img"
 					/>
+					<div className="movies-hero-overlay" />
 				</div>
 
 				<div className="movies-hero-content">
@@ -110,51 +96,114 @@ export default function MyMoviesPage() {
 			{/* My Movies Section */}
 			<section className="movies-section">
 				<div className="movies-section-header">
-					<h2 className="movies-section-title">My Movies</h2>
+					<div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+						<h2 className="movies-section-title">My Movies</h2>
+						{searchQuery && (
+							<span
+								style={{
+									fontSize: "13px",
+									color: "#64748b",
+									background: "#f1f5f9",
+									padding: "3px 10px",
+									borderRadius: "12px",
+								}}
+							>
+								Filter: &quot;{searchQuery}&quot; ({filteredMovies.length} found)
+							</span>
+						)}
+					</div>
 					<Link href="/movies" className="movies-view-all">
 						<span>View all</span>
 						<span>→</span>
 					</Link>
 				</div>
 
-				<div className="movies-cards-grid">
-					{filteredMovies.map((movie) => (
-						<article className="movies-card" key={movie.id}>
-							<div className="movies-card-thumb">
-								{/* eslint-disable-next-line @next/next/no-img-element */}
-								<img
-									src={movie.image}
-									alt={movie.title}
-									className="movies-card-img"
-								/>
-							</div>
-
-							<div className="movies-card-body">
-								<h3 className="movies-card-title">{movie.title}</h3>
-								<p className="movies-card-genre">{movie.genre}</p>
-
-								<div className="movies-card-progress-track">
-									<div
-										className="movies-card-progress-fill"
-										style={{ width: `${movie.progress}%` }}
+				{filteredMovies.length === 0 ? (
+					<div
+						style={{
+							textAlign: "center",
+							padding: "60px 20px",
+							background: "#f8fafc",
+							borderRadius: "16px",
+							border: "1px dashed #cbd5e1",
+							marginTop: "16px",
+						}}
+					>
+						<p style={{ color: "#64748b", fontSize: "15px", margin: "0 0 12px" }}>
+							No movies found matching &quot;{searchQuery}&quot;.
+						</p>
+						<button
+							type="button"
+							onClick={() => {
+								setSearchQuery("");
+								const params = new URLSearchParams(window.location.search);
+								params.delete("search");
+								const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+								window.history.replaceState(null, "", newUrl);
+								window.dispatchEvent(new Event("moviesSearchChanged"));
+							}}
+							style={{
+								padding: "8px 18px",
+								borderRadius: "20px",
+								border: "1px solid #cbd5e1",
+								background: "#ffffff",
+								color: "#1e293b",
+								fontSize: "13px",
+								fontWeight: "550",
+								cursor: "pointer",
+							}}
+						>
+							Clear Search Filter
+						</button>
+					</div>
+				) : (
+					<div className="movies-cards-grid">
+						{filteredMovies.map((movie) => (
+							<article className="movies-card" key={movie.id}>
+								<div className="movies-card-thumb">
+									{/* eslint-disable-next-line @next/next/no-img-element */}
+									<img
+										src={movie.image}
+										alt={movie.title}
+										className="movies-card-img"
 									/>
 								</div>
 
-								<div className="movies-card-footer">
-									<span className="movies-card-pct">{movie.progress}%</span>
-									<Link
-										href={`/movies/${movie.id}`}
-										className="movies-card-continue"
-									>
-										<span>Continue</span>
-										<span>→</span>
-									</Link>
+								<div className="movies-card-body">
+									<h3 className="movies-card-title">{movie.title}</h3>
+									<p className="movies-card-genre">{movie.genre}</p>
+
+									<div className="movies-card-progress-track">
+										<div
+											className="movies-card-progress-fill"
+											style={{ width: `${movie.progress}%` }}
+										/>
+									</div>
+
+									<div className="movies-card-footer">
+										<span className="movies-card-pct">{movie.progress}%</span>
+										<Link
+											href={`/movies/${movie.id}`}
+											className="movies-card-continue"
+										>
+											<span>Continue</span>
+											<span>→</span>
+										</Link>
+									</div>
 								</div>
-							</div>
-						</article>
-					))}
-				</div>
+							</article>
+						))}
+					</div>
+				)}
 			</section>
 		</div>
+	);
+}
+
+export default function MyMoviesPage() {
+	return (
+		<Suspense fallback={<div style={{ padding: "40px", color: "#64748b" }}>Loading movies...</div>}>
+			<MyMoviesContent />
+		</Suspense>
 	);
 }
