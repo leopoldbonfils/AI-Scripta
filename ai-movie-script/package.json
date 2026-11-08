@@ -7,7 +7,8 @@
     "dev:turbo": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jiti tests/apiClient.test.ts && jiti tests/authIntegration.test.ts && jiti tests/movieIntegration.test.ts && jiti tests/workspaceIntegration.test.ts && jiti tests/exportIntegration.test.ts"
   },
   "dependencies": {
     "next": "16.3.6",

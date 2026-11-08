@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { AuthProvider } from "../auth/AuthProvider";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
@@ -11,20 +12,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 		pathname === "/login" ||
 		pathname === "/signin";
 
-	if (isAuth) {
-		return <>{children}</>;
-	}
-
-	// The header is shown everywhere except the dashboard (Home landing)
-	const isDashboard = pathname === "/" || pathname === "/dashboard";
-
 	return (
-		<div className="app-layout">
-			<Sidebar />
-			<main className="app-main">
-				{!isDashboard && <Header />}
-				{children}
-			</main>
-		</div>
+		<AuthProvider>
+			{isAuth ? (
+				<>{children}</>
+			) : (
+				<div className="app-layout">
+					<Sidebar />
+					<main className="app-main">
+						{pathname !== "/" && pathname !== "/dashboard" && <Header />}
+						{children}
+					</main>
+				</div>
+			)}
+		</AuthProvider>
 	);
 }

@@ -4,11 +4,13 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FiSearch, FiBell, FiSettings, FiFilm, FiEdit3, FiZap, FiLogOut, FiCheckCircle } from "react-icons/fi";
+import { useAuth } from "../auth/AuthProvider";
 
 function HeaderContent() {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const { user, logout } = useAuth();
 
 	const initialQuery = searchParams ? searchParams.get("search") || "" : "";
 	const [query, setQuery] = useState(initialQuery);
@@ -18,6 +20,18 @@ function HeaderContent() {
 
 	const notificationsRef = useRef<HTMLDivElement>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
+
+	const displayName = user?.name || "Leopold";
+	const displayPlan = user?.subscriptionTier
+		? `✦ ${user.subscriptionTier.charAt(0) + user.subscriptionTier.slice(1).toLowerCase()} Plan`
+		: "✦ Pro Plan";
+	const avatarUrl = user?.avatar || "/images/leopold-hd.png";
+
+	const handleLogout = async (e: React.MouseEvent) => {
+		e.preventDefault();
+		setShowProfile(false);
+		await logout();
+	};
 
 	// Sync local query if URL search parameter changes
 	useEffect(() => {
@@ -186,10 +200,10 @@ function HeaderContent() {
 						aria-label="User profile menu"
 						aria-expanded={showProfile}
 					>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
+						{/* User Avatar */}
 						<img
-							src="/images/leopold-hd.png"
-							alt="Leopold"
+							src={avatarUrl}
+							alt={displayName}
 							className="app-header-avatar-img"
 						/>
 					</button>
@@ -199,13 +213,13 @@ function HeaderContent() {
 							<div className="profile-popover-user">
 								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
-									src="/images/leopold-hd.png"
-									alt="Leopold"
+									src={avatarUrl}
+									alt={displayName}
 									className="profile-popover-avatar"
 								/>
 								<div className="profile-popover-info">
-									<strong className="profile-popover-name">Leopold</strong>
-									<span className="profile-popover-plan">✦ Pro Plan</span>
+									<strong className="profile-popover-name">{displayName}</strong>
+									<span className="profile-popover-plan">{displayPlan}</span>
 								</div>
 							</div>
 
@@ -250,14 +264,25 @@ function HeaderContent() {
 
 								<div className="profile-popover-divider" />
 
-								<Link
-									href="/login"
+								<button
+									type="button"
 									className="profile-popover-link logout"
-									onClick={() => setShowProfile(false)}
+									onClick={handleLogout}
+									style={{
+										width: "100%",
+										textAlign: "left",
+										background: "none",
+										border: "none",
+										cursor: "pointer",
+										display: "flex",
+										alignItems: "center",
+										gap: "10px",
+										padding: "8px 12px",
+									}}
 								>
 									<FiLogOut size={15} />
 									<span>Sign Out</span>
-								</Link>
+								</button>
 							</nav>
 						</div>
 					)}

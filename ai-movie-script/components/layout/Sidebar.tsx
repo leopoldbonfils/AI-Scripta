@@ -13,6 +13,7 @@ import {
 	FiLogOut,
 } from "react-icons/fi";
 import { FaClapperboard } from "react-icons/fa6";
+import { useAuth } from "../auth/AuthProvider";
 
 function LogoIcon() {
 	return (
@@ -34,6 +35,13 @@ const navItems = [
 
 export function Sidebar() {
 	const pathname = usePathname();
+	const { user, logout } = useAuth();
+
+	const displayName = user?.name || "Leopold";
+	const displayPlan = user?.subscriptionTier
+		? `${user.subscriptionTier.charAt(0) + user.subscriptionTier.slice(1).toLowerCase()} Plan`
+		: "Pro Plan";
+	const avatarUrl = user?.avatar || "/images/leopold-hd.png";
 
 	return (
 		<aside className="sidebar">
@@ -70,20 +78,25 @@ export function Sidebar() {
 					<div className="avatar">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
-							src="/images/leopold-hd.png"
-							alt="Leopold"
+							src={avatarUrl}
+							alt={displayName}
 							className="avatar-image"
 						/>
 					</div>
 					<div className="profile-copy">
-						<strong>Leopold</strong>
-						<span>Pro Plan</span>
+						<strong>{displayName}</strong>
+						<span>{displayPlan}</span>
 					</div>
 				</div>
 
 				<div className="sidebar-divider" />
 
-				<button className="logout" type="button">
+				<button
+					className="logout"
+					type="button"
+					onClick={() => logout()}
+					style={{ cursor: "pointer" }}
+				>
 					<span className="logout-icon">
 						<FiLogOut size={18} />
 					</span>
