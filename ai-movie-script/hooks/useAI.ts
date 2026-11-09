@@ -18,6 +18,8 @@ import {
 	GenerateOutlineInput,
 	GenerateSceneInput,
 	ImproveSceneInput,
+	ApplyGenerationResult,
+	RejectGenerationResult,
 } from "../types/ai";
 
 export function useAI(movieId?: string | null) {
@@ -161,11 +163,12 @@ export function useAI(movieId?: string | null) {
 	);
 
 	const applyGeneration = useCallback(
-		async (generationId: string, editedOutput?: unknown): Promise<void> => {
+		async (generationId: string, editedOutput?: unknown): Promise<ApplyGenerationResult> => {
 			setIsGenerating(true);
 			setError(null);
 			try {
-				await aiService.applyGeneration(generationId, { editedOutput });
+				const res = await aiService.applyGeneration(generationId, { editedOutput });
+				return res;
 			} catch (err: unknown) {
 				const msg =
 					err instanceof Error
@@ -180,11 +183,16 @@ export function useAI(movieId?: string | null) {
 		[]
 	);
 
-	const rejectGeneration = useCallback(async (generationId: string): Promise<void> => {
+	const rejectGeneration = useCallback(async (generationId: string): Promise<RejectGenerationResult> => {
 		try {
-			await aiService.rejectGeneration(generationId);
-		} catch {
-			// Non-blocking reject
+			return await aiService.rejectGeneration(generationId);
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error
+					? err.message
+					: "Failed to reject AI proposal.";
+			setError(msg);
+			throw err;
 		}
 	}, []);
 

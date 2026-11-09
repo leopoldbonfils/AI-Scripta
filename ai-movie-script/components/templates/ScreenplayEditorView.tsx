@@ -195,6 +195,30 @@ export function ScreenplayEditorView({
 		}
 	};
 
+	// Clean extraction helper that guarantees pure screenplay text, never raw JSON or metadata
+	const extractCleanScreenplayText = (output: any): string => {
+		if (!output) return "";
+		if (typeof output === "string") {
+			const trimmed = output.trim();
+			if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+				try {
+					const parsed = JSON.parse(trimmed);
+					return extractCleanScreenplayText(parsed);
+				} catch {
+					return trimmed;
+				}
+			}
+			return trimmed;
+		}
+		if (typeof output === "object") {
+			if (typeof output.content === "string") return output.content.trim();
+			if (typeof output.sceneContent === "string") return output.sceneContent.trim();
+			if (typeof output.script === "string") return output.script.trim();
+			if (typeof output.dialogue === "string") return output.dialogue.trim();
+		}
+		return "";
+	};
+
 	// AI Action Buttons
 	const handleAIAction = async (action: string) => {
 		if (!movieId) {
@@ -202,8 +226,42 @@ export function ScreenplayEditorView({
 			return;
 		}
 
-		showNotification("FilmForge AI is analyzing and drafting dialogue...");
+		showNotification("FilmForge AI is analyzing and refining screenplay content...");
 		const currentText = screenplay?.content || "";
+
+		// 1. Identify target range (selection or active scene)
+		let targetStart = -1;
+		let targetEnd = -1;
+		let targetText = "";
+
+		const textarea = textareaRef.current;
+		if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
+			targetStart = textarea.selectionStart;
+			targetEnd = textarea.selectionEnd;
+			targetText = currentText.slice(targetStart, targetEnd).trim();
+		} else {
+			const activeScene = scenes[activeSceneIndex];
+			if (activeScene && activeScene.title) {
+				const headingUpper = activeScene.title.toUpperCase();
+				const hIdx = currentText.toUpperCase().indexOf(headingUpper);
+				if (hIdx !== -1) {
+					targetStart = hIdx;
+					const afterHeading = currentText.slice(hIdx + headingUpper.length);
+					const nextHeadingMatch = afterHeading.match(/\n(?=(INT\.|EXT\.|EST\.|I\/E\.))/i);
+					if (nextHeadingMatch && nextHeadingMatch.index !== undefined) {
+						targetEnd = hIdx + headingUpper.length + nextHeadingMatch.index;
+					} else {
+						targetEnd = currentText.length;
+					}
+					targetText = currentText.slice(targetStart, targetEnd).trim();
+				}
+			}
+		}
+
+		if (!targetText) {
+			targetText = scenes[activeSceneIndex]?.content?.trim() || currentText.slice(-1200) || "EXT. SCENE - DAY\n\nAction begins.";
+		}
+
 		const promptMap: Record<string, string> = {
 			improve: "Improve dramatic pacing, subtext, and sensory atmosphere for this scene.",
 			rewrite: "Rewrite the character dialogue with sharper subtext and tension.",
@@ -215,8 +273,10 @@ export function ScreenplayEditorView({
 		const instruction = promptMap[action] || "Enhance screenplay scene.";
 
 		try {
+			const activeSceneId = scenes[activeSceneIndex]?.id;
 			const res = await improveScene({
-				sceneContent: currentText.slice(-1200) || "EXT. CITY - NIGHT",
+				sceneId: activeSceneId,
+				sceneContent: targetText,
 				action:
 					action === "rewrite"
 						? "REWRITE"
@@ -228,13 +288,24 @@ export function ScreenplayEditorView({
 				instructions: instruction,
 			});
 
-			if (res && res.output) {
-				const generatedText = typeof res.output === "string" ? res.output : JSON.stringify(res.output);
-				updateContent(`${currentText}\n\n${generatedText}`);
-				showNotification(`✦ Applied FilmForge AI: ${action}`);
+			const rawOutput = res?.parsedOutput || res?.output;
+			const cleanText = extractCleanScreenplayText(rawOutput);
+
+			if (!cleanText) {
+				showNotification("AI returned empty or invalid text. Original screenplay preserved.");
+				return;
 			}
+
+			// Replace ONLY the target range or active scene
+			if (targetStart >= 0 && targetEnd > targetStart) {
+				const updated = currentText.slice(0, targetStart) + cleanText + currentText.slice(targetEnd);
+				updateContent(updated);
+			} else {
+				updateContent(currentText ? `${currentText}\n\n${cleanText}` : cleanText);
+			}
+
+			showNotification(`✦ Applied FilmForge AI: ${action}`);
 		} catch (err: unknown) {
-			// Non-destructive fallback message
 			showNotification(err instanceof Error ? err.message : "AI generation failed. Please try again.");
 		}
 	};
@@ -242,23 +313,59 @@ export function ScreenplayEditorView({
 	// AI Prompt Chat
 	const handleSendChat = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!chatInput.trim() || isAIGenerating) return;
+		if (!chatInput.trim() || isAIGenerating || !movieId) return;
 		const query = chatInput.trim();
 		setChatInput("");
 		showNotification(`FilmForge AI processing: "${query}"...`);
 
 		const currentText = screenplay?.content || "";
 		try {
+			// Ensure a real scene exists with a valid UUID
+			let targetScene = scenes[activeSceneIndex];
+			if (!targetScene) {
+				const nextNum = scenes.length + 1;
+				const defaultHeading = `EXT. SCENE ${nextNum} - DAY`;
+				targetScene = await screenplayService.createScene(movieId, {
+					sceneNumber: nextNum,
+					title: defaultHeading,
+					location: "SCENE LOCATION",
+					timeOfDay: "DAY",
+				});
+				const updatedScenes = [...scenes, targetScene];
+				setScenes(updatedScenes);
+				setActiveSceneIndex(updatedScenes.length - 1);
+			}
+
 			const res = await generateScene({
-				sceneId: scenes[activeSceneIndex]?.id || "scene-active",
+				sceneId: targetScene.id,
 				instructions: query,
 			});
 
-			if (res && res.output) {
-				const generatedText = typeof res.output === "string" ? res.output : JSON.stringify(res.output);
-				updateContent(`${currentText}\n\n${generatedText}`);
-				showNotification(`✦ FilmForge AI generated script content!`);
+			const rawOutput = res?.parsedOutput || res?.output;
+			const cleanText = extractCleanScreenplayText(rawOutput);
+
+			if (!cleanText) {
+				showNotification("AI returned empty or invalid text.");
+				return;
 			}
+
+			// Locate targetScene in currentText if possible
+			let updated = "";
+			const headingUpper = targetScene.title.toUpperCase();
+			const hIdx = currentText.toUpperCase().indexOf(headingUpper);
+			if (hIdx !== -1) {
+				const afterHeading = currentText.slice(hIdx + headingUpper.length);
+				const nextHeadingMatch = afterHeading.match(/\n(?=(INT\.|EXT\.|EST\.|I\/E\.))/i);
+				const endIdx = nextHeadingMatch && nextHeadingMatch.index !== undefined
+					? hIdx + headingUpper.length + nextHeadingMatch.index
+					: currentText.length;
+				updated = currentText.slice(0, hIdx) + cleanText + currentText.slice(endIdx);
+			} else {
+				updated = currentText ? `${currentText}\n\n${cleanText}` : cleanText;
+			}
+
+			updateContent(updated);
+			showNotification(`✦ FilmForge AI generated script content!`);
 		} catch (err: unknown) {
 			showNotification(err instanceof Error ? err.message : "AI request failed");
 		}

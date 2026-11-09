@@ -10,10 +10,14 @@ export type StudioView = "outline" | "screenplay" | "export";
 
 interface StudioWorkspaceProps {
 	initialView?: StudioView;
+	movieId?: string;
+	movieTitle?: string;
 }
 
 function StudioWorkspaceInner({
 	initialView = "outline",
+	movieId,
+	movieTitle,
 }: StudioWorkspaceProps) {
 	const searchParams = useSearchParams();
 
@@ -47,6 +51,7 @@ function StudioWorkspaceInner({
 			{/* Render Active View directly without top tab bar */}
 			{activeView === "outline" && (
 				<StoryOutlineView
+					movieId={movieId}
 					onOpenScreenplay={() => handleSwitchView("screenplay")}
 					onImproveStory={() => handleSwitchView("screenplay")}
 				/>
@@ -54,6 +59,8 @@ function StudioWorkspaceInner({
 
 			{activeView === "screenplay" && (
 				<ScreenplayEditorView
+					movieId={movieId}
+					movieTitle={movieTitle}
 					onGoToExport={() => handleSwitchView("export")}
 					onBackToOutline={() => handleSwitchView("outline")}
 				/>
@@ -61,6 +68,8 @@ function StudioWorkspaceInner({
 
 			{activeView === "export" && (
 				<ExportScreenplayView
+					movieId={movieId}
+					movieTitle={movieTitle}
 					onBackToScreenplay={() => handleSwitchView("screenplay")}
 				/>
 			)}

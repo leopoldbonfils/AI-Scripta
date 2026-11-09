@@ -26,6 +26,8 @@ export interface AIGeneration {
 	durationMs: number | null;
 	errorMessage: string | null;
 	createdAt: string;
+	parsedOutput?: any;
+	appliedData?: any;
 }
 
 export interface AIConversation {
@@ -90,6 +92,17 @@ export interface ImproveSceneInput {
 
 export interface ApplyGenerationInput {
 	editedOutput?: unknown;
+}
+
+export interface ApplyGenerationResult {
+	id: string;
+	status: GenerationStatus;
+	appliedData?: any;
+}
+
+export interface RejectGenerationResult {
+	id: string;
+	status: GenerationStatus;
 }
 
 export interface ListGenerationsParams extends PaginationParams {

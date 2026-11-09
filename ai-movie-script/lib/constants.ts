@@ -54,6 +54,12 @@ export const API_ENDPOINTS = {
 	},
 	AI: {
 		QUOTA: "/ai/quota",
+		ANALYZE_INPUT: "/ai/analyze-input",
+		ANALYSES: "/ai/analyses",
+		ANALYSIS_BY_ID: (id: string) => `/ai/analyses/${id}`,
+		MOVIE_ANALYSES: (movieId: string) => `/ai/movies/${movieId}/analyses`,
+		RETRY_ANALYSIS: (id: string) => `/ai/analyses/${id}/retry`,
+		LINK_MOVIE_ANALYSIS: (id: string) => `/ai/analyses/${id}/link-movie`,
 		GENERATE_IDEA: "/ai/generate-idea",
 		MOVIE_GENERATE_IDEA: (movieId: string) =>
 			`/ai/movies/${movieId}/generate-idea`,
@@ -67,6 +73,17 @@ export const API_ENDPOINTS = {
 		APPLY: (id: string) => `/ai/generations/${id}/apply`,
 		REJECT: (id: string) => `/ai/generations/${id}/reject`,
 		RETRY: (id: string) => `/ai/generations/${id}/retry`,
+		// Phase C: Story & Character Intelligence
+		STORY_INTELLIGENCE: "/ai/story-intelligence",
+		STORY_INTELLIGENCE_BY_ID: (id: string) => `/ai/story-intelligence/${id}`,
+		MOVIE_STORY_INTELLIGENCE: (movieId: string) =>
+			`/ai/movies/${movieId}/story-intelligence`,
+		REGENERATE_INTELLIGENCE_SECTION: (id: string) =>
+			`/ai/story-intelligence/${id}/regenerate-section`,
+		UPDATE_SUGGESTION_STATUS: (id: string, suggestionId: string) =>
+			`/ai/story-intelligence/${id}/suggestions/${suggestionId}`,
+		APPLY_INTELLIGENCE_TO_PROJECT: (id: string) =>
+			`/ai/story-intelligence/${id}/apply-to-project`,
 		LIST: "/ai/generations",
 	},
 	HEALTH: "/health",

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCharacters } from "../../hooks/useCharacters";
 import { useAI } from "../../hooks/useAI";
 import { Character, CreateCharacterInput } from "../../types/character";
+import { AIGeneration } from "../../types/ai";
 import { Modal } from "../ui/Modal";
 import {
 	FiEdit,
@@ -46,15 +47,21 @@ const defaultAvatarList = [
 ];
 
 export function CharacterWorkspace({ movieId, movieTitle = "Movie Project" }: CharacterWorkspaceProps) {
-	const { characters, isLoading, error, createCharacter, updateCharacter, deleteCharacter } =
+	const { characters, isLoading, error, refetch, createCharacter, updateCharacter, deleteCharacter } =
 		useCharacters(movieId);
 
-	const { generateCharacters, isGenerating: isAIGenerating } = useAI(movieId);
+	const { generateCharacters, applyGeneration, rejectGeneration, isGenerating: isAIGenerating } = useAI(movieId);
 
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
 	const [charToDelete, setCharToDelete] = useState<Character | null>(null);
+
+	// AI Proposal Review state
+	const [proposedGen, setProposedGen] = useState<AIGeneration | null>(null);
+	const [proposedCharacters, setProposedCharacters] = useState<any[]>([]);
+	const [isReviewOpen, setIsReviewOpen] = useState(false);
+	const [isApplyingProposal, setIsApplyingProposal] = useState(false);
 
 	// Form fields
 	const [name, setName] = useState("");
@@ -176,11 +183,60 @@ export function CharacterWorkspace({ movieId, movieTitle = "Movie Project" }: Ch
 		try {
 			showToast("FilmForge AI is generating characters based on your movie premise...");
 			const gen = await generateCharacters();
-			if (gen && gen.output) {
-				showToast("Generated new characters! Cast dossier updated.");
+			const rawChars = Array.isArray(gen.parsedOutput)
+				? gen.parsedOutput
+				: gen.parsedOutput?.characters || (gen.output ? (() => {
+					try {
+						const p = JSON.parse(gen.output);
+						return Array.isArray(p) ? p : p.characters || [];
+					} catch {
+						return [];
+					}
+				})() : []);
+
+			if (rawChars.length > 0) {
+				setProposedGen(gen);
+				setProposedCharacters(rawChars);
+				setIsReviewOpen(true);
+				showToast(`Generated ${rawChars.length} character proposals. Review before applying.`);
+			} else {
+				showToast("AI generation completed but no structured character profiles were returned.");
 			}
 		} catch (err: unknown) {
 			showToast(err instanceof Error ? err.message : "Failed to generate characters");
+		}
+	};
+
+	const handleAcceptProposal = async () => {
+		if (!proposedGen || isApplyingProposal) return;
+		setIsApplyingProposal(true);
+		try {
+			await applyGeneration(proposedGen.id);
+			await refetch();
+			setIsReviewOpen(false);
+			setProposedGen(null);
+			setProposedCharacters([]);
+			showToast("Successfully accepted and added characters to cast dossier!");
+		} catch (err: unknown) {
+			showToast(err instanceof Error ? err.message : "Failed to apply character proposal");
+		} finally {
+			setIsApplyingProposal(false);
+		}
+	};
+
+	const handleRejectProposal = async () => {
+		if (!proposedGen || isApplyingProposal) return;
+		setIsApplyingProposal(true);
+		try {
+			await rejectGeneration(proposedGen.id);
+			setIsReviewOpen(false);
+			setProposedGen(null);
+			setProposedCharacters([]);
+			showToast("Character proposal rejected.");
+		} catch (err: unknown) {
+			showToast(err instanceof Error ? err.message : "Failed to reject proposal");
+		} finally {
+			setIsApplyingProposal(false);
 		}
 	};
 
@@ -783,6 +839,111 @@ export function CharacterWorkspace({ movieId, movieTitle = "Movie Project" }: Ch
 					>
 						{isDeleting ? "Deleting..." : "Delete Character"}
 					</button>
+				</div>
+			</Modal>
+
+			{/* AI Proposal Review Modal */}
+			<Modal
+				isOpen={isReviewOpen}
+				onClose={() => !isApplyingProposal && setIsReviewOpen(false)}
+				title={`Review AI Character Proposals (${proposedCharacters.length})`}
+				maxWidth="680px"
+				footer={
+					<div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", width: "100%" }}>
+						<button
+							type="button"
+							onClick={handleRejectProposal}
+							disabled={isApplyingProposal}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "6px",
+								border: "1px solid #cbd5e1",
+								backgroundColor: "#f8fafc",
+								color: "#475569",
+								fontWeight: 500,
+								fontSize: "13px",
+								cursor: isApplyingProposal ? "not-allowed" : "pointer",
+							}}
+						>
+							Reject Proposal
+						</button>
+						<button
+							type="button"
+							onClick={handleAcceptProposal}
+							disabled={isApplyingProposal}
+							style={{
+								padding: "8px 18px",
+								borderRadius: "6px",
+								backgroundColor: "#d97706",
+								color: "#ffffff",
+								fontWeight: 600,
+								fontSize: "13px",
+								display: "flex",
+								alignItems: "center",
+								gap: "6px",
+								cursor: isApplyingProposal ? "not-allowed" : "pointer",
+								opacity: isApplyingProposal ? 0.7 : 1,
+							}}
+						>
+							{isApplyingProposal ? "Applying to Cast..." : "Accept & Add to Cast"}
+						</button>
+					</div>
+				}
+			>
+				<div style={{ maxHeight: "420px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px", paddingRight: "4px" }}>
+					<p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
+						The AI generated the following character profiles for your movie. Review their details before adding them to your permanent project cast.
+					</p>
+					{proposedCharacters.map((char: any, idx: number) => (
+						<div
+							key={idx}
+							style={{
+								border: "1px solid #e2e8f0",
+								borderRadius: "8px",
+								padding: "14px",
+								backgroundColor: "#f8fafc",
+							}}
+						>
+							<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+								<span style={{ fontWeight: 600, fontSize: "15px", color: "#0f172a" }}>
+									{char.name}
+								</span>
+								<span
+									style={{
+										fontSize: "11px",
+										fontWeight: 600,
+										padding: "3px 8px",
+										borderRadius: "4px",
+										backgroundColor: "#fef3c7",
+										color: "#92400e",
+										textTransform: "uppercase",
+									}}
+								>
+									{char.role || "Supporting"}
+								</span>
+							</div>
+							{char.age && (
+								<p style={{ fontSize: "12px", color: "#475569", margin: "0 0 6px 0" }}>
+									<strong>Age:</strong> {char.age}
+								</p>
+							)}
+							{char.personality && (
+								<p style={{ fontSize: "12px", color: "#475569", margin: "0 0 6px 0" }}>
+									<strong>Personality:</strong> {char.personality}
+								</p>
+							)}
+							{char.goals && (
+								<p style={{ fontSize: "12px", color: "#475569", margin: "0 0 6px 0" }}>
+									<strong>Goals:</strong> {char.goals}
+								</p>
+							)}
+							{char.characterArc && (
+								<p style={{ fontSize: "12px", color: "#475569", margin: "0 0 6px 0" }}>
+									<strong>Arc:</strong> {char.characterArc}
+								</p>
+							)}
+						</div>
+					))}
 				</div>
 			</Modal>
 		</div>

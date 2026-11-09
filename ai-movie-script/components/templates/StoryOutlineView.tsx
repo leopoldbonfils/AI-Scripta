@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { screenplayService } from "../../services/screenplayService";
 import { useAI } from "../../hooks/useAI";
 import { StoryAct, Scene } from "../../types/screenplay";
+import { AIGeneration } from "../../types/ai";
+import { Modal } from "../ui/Modal";
 import { FiPlus, FiSparkles, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
 export interface OutlineScene {
@@ -41,7 +43,13 @@ export function StoryOutlineView({
 	const [toastMsg, setToastMsg] = useState("New scene added to outline!");
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-	const { generateOutline, isGenerating: isAIGenerating } = useAI(movieId);
+	// AI Outline Proposal Review state
+	const [proposedOutlineGen, setProposedOutlineGen] = useState<AIGeneration | null>(null);
+	const [proposedActs, setProposedActs] = useState<any[]>([]);
+	const [isReviewOpen, setIsReviewOpen] = useState(false);
+	const [isApplyingOutline, setIsApplyingOutline] = useState(false);
+
+	const { generateOutline, applyGeneration, rejectGeneration, isGenerating: isAIGenerating } = useAI(movieId);
 
 	const triggerToast = (msg: string) => {
 		setToastMsg(msg);
@@ -129,11 +137,59 @@ export function StoryOutlineView({
 
 		try {
 			triggerToast("FilmForge AI is analyzing acts and dramatic pacing...");
-			await generateOutline();
-			await fetchOutlineData();
-			triggerToast("AI updated your story outline with new beats!");
+			const gen = await generateOutline();
+			const actsData = gen.parsedOutput?.acts || (gen.output ? (() => {
+				try {
+					const p = JSON.parse(gen.output);
+					return p.acts || [];
+				} catch {
+					return [];
+				}
+			})() : []);
+
+			if (Array.isArray(actsData) && actsData.length > 0) {
+				setProposedOutlineGen(gen);
+				setProposedActs(actsData);
+				setIsReviewOpen(true);
+				triggerToast(`Generated ${actsData.length}-act outline proposal. Review before applying.`);
+			} else {
+				triggerToast("AI generation completed but no structured outline was returned.");
+			}
 		} catch (err: unknown) {
 			triggerToast(err instanceof Error ? err.message : "AI Outline generation failed");
+		}
+	};
+
+	const handleAcceptOutline = async () => {
+		if (!proposedOutlineGen || isApplyingOutline) return;
+		setIsApplyingOutline(true);
+		try {
+			await applyGeneration(proposedOutlineGen.id);
+			await fetchOutlineData();
+			setIsReviewOpen(false);
+			setProposedOutlineGen(null);
+			setProposedActs([]);
+			triggerToast("Successfully applied story outline to project!");
+		} catch (err: unknown) {
+			triggerToast(err instanceof Error ? err.message : "Failed to apply outline proposal");
+		} finally {
+			setIsApplyingOutline(false);
+		}
+	};
+
+	const handleRejectOutline = async () => {
+		if (!proposedOutlineGen || isApplyingOutline) return;
+		setIsApplyingOutline(true);
+		try {
+			await rejectGeneration(proposedOutlineGen.id);
+			setIsReviewOpen(false);
+			setProposedOutlineGen(null);
+			setProposedActs([]);
+			triggerToast("Outline proposal rejected.");
+		} catch (err: unknown) {
+			triggerToast(err instanceof Error ? err.message : "Failed to reject outline proposal");
+		} finally {
+			setIsApplyingOutline(false);
 		}
 	};
 
@@ -348,6 +404,125 @@ export function StoryOutlineView({
 					<span>{toastMsg}</span>
 				</div>
 			)}
+
+			{/* AI Outline Review Modal */}
+			<Modal
+				isOpen={isReviewOpen}
+				onClose={() => !isApplyingOutline && setIsReviewOpen(false)}
+				title={`Review AI Story Outline (${proposedActs.length} Acts)`}
+				maxWidth="720px"
+				footer={
+					<div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", width: "100%" }}>
+						<button
+							type="button"
+							onClick={handleRejectOutline}
+							disabled={isApplyingOutline}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "6px",
+								border: "1px solid #cbd5e1",
+								backgroundColor: "#f8fafc",
+								color: "#475569",
+								fontWeight: 500,
+								fontSize: "13px",
+								cursor: isApplyingOutline ? "not-allowed" : "pointer",
+							}}
+						>
+							Reject Proposal
+						</button>
+						<button
+							type="button"
+							onClick={handleAcceptOutline}
+							disabled={isApplyingOutline}
+							style={{
+								padding: "8px 18px",
+								borderRadius: "6px",
+								backgroundColor: "#d97706",
+								color: "#ffffff",
+								fontWeight: 600,
+								fontSize: "13px",
+								display: "flex",
+								alignItems: "center",
+								gap: "6px",
+								cursor: isApplyingOutline ? "not-allowed" : "pointer",
+								opacity: isApplyingOutline ? 0.7 : 1,
+							}}
+						>
+							{isApplyingOutline ? "Applying Outline..." : "Accept & Apply Outline"}
+						</button>
+					</div>
+				}
+			>
+				<div style={{ maxHeight: "440px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px", paddingRight: "4px" }}>
+					<p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
+						Review the proposed dramatic acts and scenes. Applying will update your story outline. Any existing written scene screenplay content will be safeguarded automatically.
+					</p>
+					{proposedActs.map((actItem: any, idx: number) => (
+						<div
+							key={idx}
+							style={{
+								border: "1px solid #e2e8f0",
+								borderRadius: "8px",
+								padding: "14px",
+								backgroundColor: "#f8fafc",
+							}}
+						>
+							<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+								<span style={{ fontWeight: 600, fontSize: "15px", color: "#0f172a" }}>
+									{actItem.title || `Act ${actItem.actNumber || idx + 1}`}
+								</span>
+								<span
+									style={{
+										fontSize: "11px",
+										fontWeight: 600,
+										padding: "2px 8px",
+										borderRadius: "4px",
+										backgroundColor: "#fef3c7",
+										color: "#92400e",
+									}}
+								>
+									{Array.isArray(actItem.scenes) ? `${actItem.scenes.length} Scenes` : "Act"}
+								</span>
+							</div>
+							{actItem.description && (
+								<p style={{ fontSize: "12px", color: "#475569", margin: "0 0 10px 0", lineHeight: "1.4" }}>
+									{actItem.description}
+								</p>
+							)}
+							{Array.isArray(actItem.scenes) && actItem.scenes.length > 0 && (
+								<div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
+									{actItem.scenes.map((sc: any, sIdx: number) => (
+										<div
+											key={sIdx}
+											style={{
+												padding: "8px 10px",
+												borderRadius: "6px",
+												backgroundColor: "#ffffff",
+												border: "1px solid #e2e8f0",
+												fontSize: "12px",
+											}}
+										>
+											<div style={{ fontWeight: 600, color: "#1e293b", marginBottom: "2px" }}>
+												Scene {sc.sceneNumber || sIdx + 1}: {sc.title || "Untitled Scene"}
+											</div>
+											{sc.location && (
+												<div style={{ color: "#64748b", fontSize: "11px", fontFamily: "monospace" }}>
+													{sc.location} {sc.timeOfDay ? `- ${sc.timeOfDay}` : ""}
+												</div>
+											)}
+											{sc.description && (
+												<div style={{ color: "#475569", marginTop: "4px", fontSize: "11px" }}>
+													{sc.description}
+												</div>
+											)}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					))}
+				</div>
+			</Modal>
 		</div>
 	);
 }

@@ -774,4 +774,113 @@ test("Phase 5: Story, Character & Screenplay Workspace Integration Tests", async
 		assert.ok(typeof res.output === "string" && res.output.includes("Eric freezes"));
 		reset();
 	});
+
+	await t.test("7.3 aiService.generateCharacters unwraps generation envelope and populates parsedOutput", async () => {
+		authTokens.setTokens({ accessToken: "test-jwt", refreshToken: "test-refresh" });
+
+		global.fetch = async (url, init) => {
+			assert.strictEqual(
+				url.toString(),
+				`http://localhost:5000/api/ai/movies/${sampleMovieId}/generate-characters`
+			);
+			assert.strictEqual(init?.method, "POST");
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					message: "Characters generated successfully",
+					data: {
+						generation: {
+							id: "ai-gen-uuid-chars",
+							userId: "user-uuid",
+							movieId: sampleMovieId,
+							generationType: "CHARACTERS",
+							input: "{}",
+							output: JSON.stringify([{ name: "Lucia Vance", role: "Protagonist" }]),
+							status: "COMPLETED",
+							promptTokens: 150,
+							completionTokens: 120,
+							totalTokens: 270,
+							estimatedCost: 0.0054,
+							durationMs: 600,
+							errorMessage: null,
+							createdAt: new Date().toISOString(),
+						},
+						parsedOutput: [{ name: "Lucia Vance", role: "Protagonist" }],
+					},
+					error: null,
+				}),
+				{ status: 200, headers: { "Content-Type": "application/json" } }
+			);
+		};
+
+		const res = await aiService.generateCharacters(sampleMovieId);
+		assert.strictEqual(res.id, "ai-gen-uuid-chars");
+		assert.strictEqual(res.generationType, "CHARACTERS");
+		assert.ok(Array.isArray(res.parsedOutput));
+		assert.strictEqual(res.parsedOutput[0].name, "Lucia Vance");
+		reset();
+	});
+
+	await t.test("7.4 aiService.applyGeneration calls backend apply endpoint", async () => {
+		authTokens.setTokens({ accessToken: "test-jwt", refreshToken: "test-refresh" });
+
+		global.fetch = async (url, init) => {
+			assert.strictEqual(
+				url.toString(),
+				`http://localhost:5000/api/ai/generations/ai-gen-uuid-chars/apply`
+			);
+			assert.strictEqual(init?.method, "POST");
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					message: "Generation accepted and applied to project successfully.",
+					data: {
+						id: "ai-gen-uuid-chars",
+						status: "ACCEPTED",
+						appliedData: [{ id: "char-1", name: "Lucia Vance" }],
+					},
+					error: null,
+				}),
+				{ status: 200, headers: { "Content-Type": "application/json" } }
+			);
+		};
+
+		const res = await aiService.applyGeneration("ai-gen-uuid-chars");
+		assert.strictEqual(res.id, "ai-gen-uuid-chars");
+		assert.strictEqual(res.status, "ACCEPTED");
+		assert.strictEqual(res.appliedData.length, 1);
+		reset();
+	});
+
+	await t.test("7.5 aiService.rejectGeneration calls backend reject endpoint", async () => {
+		authTokens.setTokens({ accessToken: "test-jwt", refreshToken: "test-refresh" });
+
+		global.fetch = async (url, init) => {
+			assert.strictEqual(
+				url.toString(),
+				`http://localhost:5000/api/ai/generations/ai-gen-uuid-chars/reject`
+			);
+			assert.strictEqual(init?.method, "POST");
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					message: "Generation rejected.",
+					data: {
+						id: "ai-gen-uuid-chars",
+						status: "REJECTED",
+					},
+					error: null,
+				}),
+				{ status: 200, headers: { "Content-Type": "application/json" } }
+			);
+		};
+
+		const res = await aiService.rejectGeneration("ai-gen-uuid-chars");
+		assert.strictEqual(res.id, "ai-gen-uuid-chars");
+		assert.strictEqual(res.status, "REJECTED");
+		reset();
+	});
 });

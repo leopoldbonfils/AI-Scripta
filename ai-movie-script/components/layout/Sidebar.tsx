@@ -11,6 +11,8 @@ import {
 	FiLayers,
 	FiSettings,
 	FiLogOut,
+	FiCompass,
+	FiCpu,
 } from "react-icons/fi";
 import { FaClapperboard } from "react-icons/fa6";
 import { useAuth } from "../auth/AuthProvider";
@@ -27,6 +29,8 @@ const navItems = [
 	{ label: "Home", href: "/dashboard", icon: FiHome },
 	{ label: "My Movies", href: "/movies", icon: FiFilm },
 	{ label: "Create Movie", href: "/create", icon: FiEdit3 },
+	{ label: "Story Analysis", href: "/analysis", icon: FiCompass },
+	{ label: "Story Intelligence", href: "/intelligence", icon: FiCpu },
 	{ label: "Ideas", href: "/ideas", icon: FiZap },
 	{ label: "Characters", href: "/characters", icon: FiUsers },
 	{ label: "Templates", href: "/templates", icon: FiLayers },

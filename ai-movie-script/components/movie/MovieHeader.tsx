@@ -16,11 +16,13 @@ import {
 	FiUsers,
 	FiFileText,
 	FiDownload,
+	FiCompass,
+	FiCpu,
 } from "react-icons/fi";
 
 interface MovieHeaderProps {
 	movie: Movie;
-	activeTab?: "outline" | "screenplay" | "export" | "story" | "characters";
+	activeTab?: "outline" | "screenplay" | "export" | "story" | "characters" | "analysis" | "intelligence";
 	onUpdate?: (data: UpdateMovieInput) => Promise<Movie>;
 	onDelete?: () => Promise<void>;
 }
@@ -84,6 +86,8 @@ export function MovieHeader({
 	const progress = movie.progress ?? (movie.status === "COMPLETED" ? 100 : 25);
 
 	const tabs = [
+		{ id: "analysis", label: "Story Analysis", href: `/movies/${movie.id}/analysis`, icon: FiCompass },
+		{ id: "intelligence", label: "Story Intelligence", href: `/movies/${movie.id}/intelligence`, icon: FiCpu },
 		{ id: "story", label: "Story Concept", href: `/movies/${movie.id}/story`, icon: FiFilm },
 		{ id: "characters", label: "Characters", href: `/movies/${movie.id}/characters`, icon: FiUsers },
 		{ id: "outline", label: "Story Outline", href: `/movies/${movie.id}/outline`, icon: FiLayers },

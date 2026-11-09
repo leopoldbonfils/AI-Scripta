@@ -14,6 +14,8 @@ import {
 	GenerateSceneInput,
 	ImproveSceneInput,
 	ApplyGenerationInput,
+	ApplyGenerationResult,
+	RejectGenerationResult,
 	ListGenerationsParams,
 } from "../types/ai";
 import { PaginationMeta } from "../types/api";
@@ -24,6 +26,40 @@ export interface PaginatedGenerationsResponse {
 }
 
 export class AIService {
+	/**
+	 * Normalizes backend responses ensuring both `generation` wrapper and direct object shapes
+	 * correctly populate parsedOutput safely.
+	 */
+	private normalizeGeneration(raw: any): AIGeneration {
+		if (!raw) {
+			throw new Error("Invalid empty AI response received");
+		}
+
+		// Handle { generation: ..., parsedOutput: ... } or direct generation object
+		const gen: AIGeneration = raw.generation ? { ...raw.generation } : { ...raw };
+
+		// Attach parsedOutput from wrapper if provided
+		if (raw.parsedOutput !== undefined && raw.parsedOutput !== null) {
+			gen.parsedOutput = raw.parsedOutput;
+		}
+
+		// If parsedOutput is not yet attached, try parsing gen.output if it's JSON string
+		if (gen.parsedOutput === undefined && typeof gen.output === "string") {
+			const trimmed = gen.output.trim();
+			if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+				try {
+					gen.parsedOutput = JSON.parse(trimmed);
+				} catch {
+					gen.parsedOutput = null;
+				}
+			} else {
+				gen.parsedOutput = null;
+			}
+		}
+
+		return gen;
+	}
+
 	/**
 	 * Retrieve user AI token consumption and daily quota status
 	 */
@@ -37,13 +73,11 @@ export class AIService {
 	public async generateIdea(
 		input: GenerateIdeaInput
 	): Promise<AIGeneration> {
-		if (input.movieId) {
-			return api.post<AIGeneration>(
-				API_ENDPOINTS.AI.MOVIE_GENERATE_IDEA(input.movieId),
-				input
-			);
-		}
-		return api.post<AIGeneration>(API_ENDPOINTS.AI.GENERATE_IDEA, input);
+		const endpoint = input.movieId
+			? API_ENDPOINTS.AI.MOVIE_GENERATE_IDEA(input.movieId)
+			: API_ENDPOINTS.AI.GENERATE_IDEA;
+		const raw = await api.post<any>(endpoint, input);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -53,10 +87,11 @@ export class AIService {
 		movieId: string,
 		input?: GenerateStoryInput
 	): Promise<AIGeneration> {
-		return api.post<AIGeneration>(
+		const raw = await api.post<any>(
 			API_ENDPOINTS.AI.GENERATE_STORY(movieId),
 			input || {}
 		);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -66,10 +101,11 @@ export class AIService {
 		movieId: string,
 		input?: GenerateCharactersInput
 	): Promise<AIGeneration> {
-		return api.post<AIGeneration>(
+		const raw = await api.post<any>(
 			API_ENDPOINTS.AI.GENERATE_CHARACTERS(movieId),
 			input || {}
 		);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -79,10 +115,11 @@ export class AIService {
 		movieId: string,
 		input?: GenerateOutlineInput
 	): Promise<AIGeneration> {
-		return api.post<AIGeneration>(
+		const raw = await api.post<any>(
 			API_ENDPOINTS.AI.GENERATE_OUTLINE(movieId),
 			input || {}
 		);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -92,10 +129,11 @@ export class AIService {
 		movieId: string,
 		input: GenerateSceneInput
 	): Promise<AIGeneration> {
-		return api.post<AIGeneration>(
+		const raw = await api.post<any>(
 			API_ENDPOINTS.AI.GENERATE_SCENE(movieId),
 			input
 		);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -105,10 +143,11 @@ export class AIService {
 		movieId: string,
 		input: ImproveSceneInput
 	): Promise<AIGeneration> {
-		return api.post<AIGeneration>(
+		const raw = await api.post<any>(
 			API_ENDPOINTS.AI.IMPROVE_SCENE(movieId),
 			input
 		);
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -117,8 +156,8 @@ export class AIService {
 	public async applyGeneration(
 		generationId: string,
 		input?: ApplyGenerationInput
-	): Promise<{ success: boolean; message: string }> {
-		return api.post<{ success: boolean; message: string }>(
+	): Promise<ApplyGenerationResult> {
+		return api.post<ApplyGenerationResult>(
 			API_ENDPOINTS.AI.APPLY(generationId),
 			input || {}
 		);
@@ -129,8 +168,8 @@ export class AIService {
 	 */
 	public async rejectGeneration(
 		generationId: string
-	): Promise<{ success: boolean; message: string }> {
-		return api.post<{ success: boolean; message: string }>(
+	): Promise<RejectGenerationResult> {
+		return api.post<RejectGenerationResult>(
 			API_ENDPOINTS.AI.REJECT(generationId)
 		);
 	}
@@ -139,7 +178,8 @@ export class AIService {
 	 * Human-in-the-loop: Retry generation with adjusted criteria
 	 */
 	public async retryGeneration(generationId: string): Promise<AIGeneration> {
-		return api.post<AIGeneration>(API_ENDPOINTS.AI.RETRY(generationId));
+		const raw = await api.post<any>(API_ENDPOINTS.AI.RETRY(generationId));
+		return this.normalizeGeneration(raw);
 	}
 
 	/**
@@ -148,9 +188,13 @@ export class AIService {
 	public async listGenerations(
 		params?: ListGenerationsParams
 	): Promise<PaginatedGenerationsResponse> {
-		return api.get<PaginatedGenerationsResponse>(API_ENDPOINTS.AI.LIST, {
+		const res = await api.get<PaginatedGenerationsResponse>(API_ENDPOINTS.AI.LIST, {
 			params: params as Record<string, string | number | boolean | undefined | null>,
 		});
+		return {
+			items: (res.items || []).map((item) => this.normalizeGeneration(item)),
+			meta: res.meta,
+		};
 	}
 }
 

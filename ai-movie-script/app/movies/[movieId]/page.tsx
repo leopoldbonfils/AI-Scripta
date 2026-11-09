@@ -221,7 +221,7 @@ export default function MoviePage() {
 				onDelete={deleteMovie}
 			/>
 			<div style={{ padding: "0 36px 48px", maxWidth: "1220px", margin: "0 auto" }}>
-				<StudioWorkspace initialView="screenplay" />
+				<StudioWorkspace initialView="screenplay" movieId={movie.id} movieTitle={movie.title} />
 			</div>
 		</div>
 	);

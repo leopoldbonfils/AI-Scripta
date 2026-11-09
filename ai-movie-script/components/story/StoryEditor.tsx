@@ -127,18 +127,35 @@ export function StoryEditor({ movieId, movieTitle = "Movie Project" }: StoryEdit
 		try {
 			setStatusMessage("FilmForge AI is analyzing your movie concept...");
 			const res = await generateStory();
-			if (res && res.output) {
-				const output = res.output as unknown as Record<string, string>;
-				if (output.logline) setLogline(output.logline);
-				if (output.synopsis) setSynopsis(output.synopsis);
-				if (output.theme) setTheme(output.theme);
-				if (output.setting) setSetting(output.setting);
-				if (output.beginning) setBeginning(output.beginning);
-				if (output.middle) setMiddle(output.middle);
-				if (output.ending) setEnding(output.ending);
+			const parsed = res?.parsedOutput || (res?.output ? (() => {
+				try {
+					return JSON.parse(res.output);
+				} catch {
+					return null;
+				}
+			})() : null);
+
+			if (parsed && typeof parsed === "object") {
+				const newLogline = parsed.logline || logline;
+				const newSynopsis = parsed.fullSynopsis || parsed.shortSynopsis || parsed.synopsis || synopsis;
+				const newTheme = parsed.centralTheme || parsed.theme || theme;
+				const newSetting = parsed.setting || setting;
+				const newBeginning = parsed.beginning || beginning;
+				const newMiddle = parsed.middle || middle;
+				const newEnding = parsed.ending || ending;
+
+				if (newLogline) setLogline(newLogline);
+				if (newSynopsis) setSynopsis(newSynopsis);
+				if (newTheme) setTheme(newTheme);
+				if (newSetting) setSetting(newSetting);
+				if (newBeginning) setBeginning(newBeginning);
+				if (newMiddle) setMiddle(newMiddle);
+				if (newEnding) setEnding(newEnding);
 
 				setSaveStatus("unsaved");
-				setStatusMessage("AI generated story framework. Review and click Save.");
+				setStatusMessage("AI generated story framework. Review the fields and click Save Changes to persist.");
+			} else {
+				setStatusMessage("Received empty or unparseable story output from AI.");
 			}
 		} catch (err: unknown) {
 			setStatusMessage(err instanceof Error ? err.message : "AI Story Generation failed");
