@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	StoryIntelligenceResult,
 	IntelligenceSection,
@@ -70,6 +70,17 @@ export function StoryIntelligenceWorkspace({
 		intelligence.characters.length > 0 ? intelligence.characters[0].id : null
 	);
 	const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+
+	useEffect(() => {
+		if (!intelligence.characters || intelligence.characters.length === 0) {
+			setSelectedCharId(null);
+			return;
+		}
+		const stillExists = intelligence.characters.some((c) => c.id === selectedCharId);
+		if (!stillExists) {
+			setSelectedCharId(intelligence.characters[0].id);
+		}
+	}, [intelligence.intelligenceId, intelligence.characters, selectedCharId]);
 
 	const pendingSuggestionsCount = intelligence.suggestions.filter(
 		(s) => s.status === "PENDING"

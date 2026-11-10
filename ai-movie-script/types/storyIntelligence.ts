@@ -311,5 +311,6 @@ export interface ApplyIntelligenceDecisionResponse {
 		story: boolean;
 		charactersCreated: number;
 		charactersUpdated: number;
+		appliedSuggestionIds?: string[];
 	};
 }

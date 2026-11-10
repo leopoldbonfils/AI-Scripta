@@ -86,6 +86,28 @@ export const API_ENDPOINTS = {
 			`/ai/story-intelligence/${id}/apply-to-project`,
 		LIST: "/ai/generations",
 	},
+	STORY_BIBLE: {
+		GET: (movieId: string) => `/movies/${movieId}/story-bible`,
+		BUILD: (movieId: string) => `/movies/${movieId}/story-bible/build`,
+		IDENTITY: (movieId: string) => `/movies/${movieId}/story-bible/identity`,
+		CREATE_ENTRY: (movieId: string) => `/movies/${movieId}/story-bible/entries`,
+		UPDATE_ENTRY: (movieId: string, targetType: string, entryId: string) =>
+			`/movies/${movieId}/story-bible/entries/${targetType}/${entryId}`,
+		ANALYZE_CONTINUITY: (movieId: string) =>
+			`/movies/${movieId}/story-bible/continuity/analyze`,
+		UPDATE_FINDING: (movieId: string, findingId: string) =>
+			`/movies/${movieId}/story-bible/continuity/${findingId}`,
+		DETECT_CHANGES: (movieId: string) =>
+			`/movies/${movieId}/story-bible/detect-changes`,
+		REVIEW_PROPOSAL: (movieId: string, proposalId: string) =>
+			`/movies/${movieId}/story-bible/proposals/${proposalId}`,
+		BATCH_REVIEW_PROPOSALS: (movieId: string) =>
+			`/movies/${movieId}/story-bible/proposals/review-batch`,
+		HISTORY: (movieId: string) => `/movies/${movieId}/story-bible/history`,
+		RESTORE_VERSION: (movieId: string, versionId: string) =>
+			`/movies/${movieId}/story-bible/history/${versionId}/restore`,
+		CONTEXT: (movieId: string) => `/movies/${movieId}/story-bible/context`,
+	},
 	HEALTH: "/health",
 } as const;
 

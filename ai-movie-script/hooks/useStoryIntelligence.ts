@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { storyIntelligenceService } from "../services/storyIntelligenceService";
 import {
 	StoryIntelligenceResult,
@@ -31,6 +31,7 @@ export function useStoryIntelligence(initialMovieId?: string) {
 	const [isApplying, setIsApplying] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [applySuccessMessage, setApplySuccessMessage] = useState<string | null>(null);
+	const autoLoadedMovieRef = useRef<string | null>(null);
 
 	const generateIntelligence = useCallback(
 		async (params: GenerateStoryIntelligenceRequest) => {
@@ -82,7 +83,8 @@ export function useStoryIntelligence(initialMovieId?: string) {
 		try {
 			const records = await storyIntelligenceService.getByMovie(movieId);
 			setHistory(records);
-			if (records.length > 0 && !intelligence) {
+			if (records.length > 0 && autoLoadedMovieRef.current !== movieId) {
+				autoLoadedMovieRef.current = movieId;
 				setIntelligence(records[0]);
 				if (records[0].characters.length > 0) {
 					setSelectedCharacterId(records[0].characters[0].id);
@@ -93,7 +95,7 @@ export function useStoryIntelligence(initialMovieId?: string) {
 			console.error("Failed to load movie intelligence history:", err);
 			return [];
 		}
-	}, [intelligence]);
+	}, []);
 
 	const regenerateSection = useCallback(
 		async (section: IntelligenceSection, characterName?: string, customInstructions?: string) => {
@@ -125,9 +127,10 @@ export function useStoryIntelligence(initialMovieId?: string) {
 	const updateSuggestionStatus = useCallback(
 		async (suggestionId: string, status: SuggestionDecision, editedContent?: string) => {
 			if (!intelligence) return;
+			const targetId = intelligence.intelligenceId;
 			try {
 				const updatedSug = await storyIntelligenceService.updateSuggestionStatus(
-					intelligence.intelligenceId,
+					targetId,
 					suggestionId,
 					{ status, editedContent }
 				);
@@ -139,6 +142,16 @@ export function useStoryIntelligence(initialMovieId?: string) {
 						suggestions: prev.suggestions.map((s) => (s.id === suggestionId ? updatedSug : s)),
 					};
 				});
+				setHistory((prev) =>
+					prev.map((h) =>
+						h.intelligenceId === targetId
+							? {
+									...h,
+									suggestions: h.suggestions.map((s) => (s.id === suggestionId ? updatedSug : s)),
+							  }
+							: h
+					)
+				);
 				return updatedSug;
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : "Failed to update suggestion";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StoryIntelligenceResult } from "../../types/storyIntelligence";
 import { Modal } from "../ui/Modal";
 import { FiCheckCircle, FiShield, FiUsers, FiBookOpen } from "react-icons/fi";
@@ -30,6 +30,13 @@ export function ApplyDecisionsModal({
 		intelligence.characters.map((c) => c.id)
 	);
 	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (isOpen) {
+			setSelectedChars(intelligence.characters.map((c) => c.id));
+			setError(null);
+		}
+	}, [isOpen, intelligence.characters]);
 
 	const handleToggleChar = (id: string) => {
 		setSelectedChars((prev) =>
