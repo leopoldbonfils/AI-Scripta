@@ -47,12 +47,16 @@ export function EntitiesMemorySection({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const { changeReason, ...payload } = form;
-		if (editing) {
-			await onUpdateEntity(editing.id, payload, changeReason || `Updated ${form.name}`);
-			setEditing(null);
-		} else {
-			await onCreateEntity(payload, changeReason || `Added ${form.name}`);
-			setIsCreateOpen(false);
+		try {
+			if (editing) {
+				await onUpdateEntity(editing.id, payload, changeReason || `Updated ${form.name}`);
+				setEditing(null);
+			} else {
+				await onCreateEntity(payload, changeReason || `Added ${form.name}`);
+				setIsCreateOpen(false);
+			}
+		} catch {
+			// Workspace error alert displays error safely
 		}
 	};
 
@@ -108,7 +112,7 @@ export function EntitiesMemorySection({
 					No tracked objects or entities found (Stories without explicit physical props remain cleanly empty).
 				</div>
 			) : (
-				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "16px" }}>
+				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "16px" }}>
 					{filtered.map((ent) => (
 						<div key={ent.id} style={{ padding: "16px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: "8px" }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>

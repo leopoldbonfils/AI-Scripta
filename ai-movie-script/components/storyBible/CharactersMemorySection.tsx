@@ -23,6 +23,7 @@ export function CharactersMemorySection({
 	const [statusFilter, setStatusFilter] = useState("ALL");
 	const [editingChar, setEditingChar] = useState<StoryBibleCharacter | null>(null);
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const [formError, setFormError] = useState<string | null>(null);
 
 	const [form, setForm] = useState<Record<string, string>>({
 		name: "",
@@ -99,13 +100,18 @@ export function CharactersMemorySection({
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setFormError(null);
 		const { changeReason, ...payload } = form;
-		if (editingChar) {
-			await onUpdateCharacter(editingChar.id, payload, changeReason || `Updated ${form.name}`);
-			setEditingChar(null);
-		} else {
-			await onCreateCharacter(payload, changeReason || `Added ${form.name}`);
-			setIsCreateOpen(false);
+		try {
+			if (editingChar) {
+				await onUpdateCharacter(editingChar.id, payload, changeReason || `Updated ${form.name}`);
+				setEditingChar(null);
+			} else {
+				await onCreateCharacter(payload, changeReason || `Added ${form.name}`);
+				setIsCreateOpen(false);
+			}
+		} catch (err: unknown) {
+			setFormError(err instanceof Error ? err.message : "Failed to save character memory");
 		}
 	};
 
@@ -180,7 +186,7 @@ export function CharactersMemorySection({
 					No character memory entries match the current filter.
 				</div>
 			) : (
-				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "16px" }}>
+				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "16px" }}>
 					{filtered.map((c) => {
 						const st = statusColor(c.status);
 						return (
@@ -258,6 +264,7 @@ export function CharactersMemorySection({
 			<Modal
 				isOpen={Boolean(editingChar) || isCreateOpen}
 				onClose={() => {
+					setFormError(null);
 					setEditingChar(null);
 					setIsCreateOpen(false);
 				}}
@@ -265,6 +272,11 @@ export function CharactersMemorySection({
 				maxWidth="620px"
 			>
 				<form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+					{formError && (
+						<div style={{ padding: "8px 12px", backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: "6px", color: "#b91c1c", fontSize: "12.5px" }}>
+							{formError}
+						</div>
+					)}
 					<div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "8px" }}>
 						<div>
 							<label style={{ display: "block", fontSize: "11.5px", fontWeight: 600 }}>Name</label>

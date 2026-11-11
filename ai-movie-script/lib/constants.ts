@@ -108,6 +108,31 @@ export const API_ENDPOINTS = {
 			`/movies/${movieId}/story-bible/history/${versionId}/restore`,
 		CONTEXT: (movieId: string) => `/movies/${movieId}/story-bible/context`,
 	},
+	SCREENPLAY_GENERATION: {
+		READINESS: (movieId: string) => `/movies/${movieId}/screenplay-generation/readiness`,
+		LATEST: (movieId: string) => `/movies/${movieId}/screenplay-generation/latest`,
+		START: (movieId: string) => `/movies/${movieId}/screenplay-generation/start`,
+		GET_JOB: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}`,
+		UPDATE_ACT: (movieId: string, jobId: string, actId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/acts/${actId}`,
+		APPROVE_ACTS: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/approve-acts`,
+		UPDATE_SCENE: (movieId: string, jobId: string, sceneId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/scenes/${sceneId}`,
+		APPROVE_SCENES: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/approve-scenes`,
+		PAUSE: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/pause`,
+		RESUME: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/resume`,
+		CANCEL: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/cancel`,
+		RETRY_SCENE: (movieId: string, jobId: string, sceneId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/scenes/${sceneId}/retry`,
+		COMMIT: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/commit`,
+	},
 	HEALTH: "/health",
 } as const;
 

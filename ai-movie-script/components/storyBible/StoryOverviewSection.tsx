@@ -45,21 +45,25 @@ export function StoryOverviewSection({
 
 	const handleSave = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await onUpdateIdentity({
-			title: title.trim() || storyBible.title,
-			premise: premise.trim() || null,
-			logline: logline.trim() || null,
-			synopsis: synopsis.trim() || null,
-			genre: genre.trim() || null,
-			themes: themesText
-				.split(",")
-				.map((t) => t.trim())
-				.filter(Boolean),
-			settingSummary: settingSummary.trim() || null,
-			historicalBackground: historicalBackground.trim() || null,
-			changeReason: changeReason.trim() || "Writer updated Story Identity",
-		});
-		setIsEditOpen(false);
+		try {
+			await onUpdateIdentity({
+				title: title.trim() || storyBible.title,
+				premise: premise.trim() || null,
+				logline: logline.trim() || null,
+				synopsis: synopsis.trim() || null,
+				genre: genre.trim() || null,
+				themes: themesText
+					.split(",")
+					.map((t) => t.trim())
+					.filter(Boolean),
+				settingSummary: settingSummary.trim() || null,
+				historicalBackground: historicalBackground.trim() || null,
+				changeReason: changeReason.trim() || "Writer updated Story Identity",
+			});
+			setIsEditOpen(false);
+		} catch {
+			// Workspace error alert displays details while preserving draft inputs
+		}
 	};
 
 	return (
@@ -147,7 +151,7 @@ export function StoryOverviewSection({
 				</div>
 			</div>
 
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "16px" }}>
 				<div style={{ padding: "16px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
 					<div style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a", marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px" }}>
 						<FiShield size={14} color="#059669" /> Established World Rules ({storyBible.worldRules?.length || 0})

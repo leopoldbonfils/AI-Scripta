@@ -63,12 +63,16 @@ export function TimelineSection({
 			description: form.description.trim() || null,
 			causalImpact: form.causalImpact.trim() || null,
 		};
-		if (editing) {
-			await onUpdateEvent(editing.id, payload, form.changeReason || `Updated event: ${form.title}`);
-			setEditing(null);
-		} else {
-			await onCreateEvent(payload, form.changeReason || `Added timeline event: ${form.title}`);
-			setIsCreateOpen(false);
+		try {
+			if (editing) {
+				await onUpdateEvent(editing.id, payload, form.changeReason || `Updated event: ${form.title}`);
+				setEditing(null);
+			} else {
+				await onCreateEvent(payload, form.changeReason || `Added timeline event: ${form.title}`);
+				setIsCreateOpen(false);
+			}
+		} catch {
+			// Workspace error alert displays error safely
 		}
 	};
 

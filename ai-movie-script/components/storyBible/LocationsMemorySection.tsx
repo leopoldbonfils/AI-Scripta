@@ -50,12 +50,16 @@ export function LocationsMemorySection({
 				.map((s) => s.trim())
 				.filter(Boolean),
 		};
-		if (editing) {
-			await onUpdateLocation(editing.id, payload, form.changeReason || `Updated ${form.name}`);
-			setEditing(null);
-		} else {
-			await onCreateLocation(payload, form.changeReason || `Added location ${form.name}`);
-			setIsCreateOpen(false);
+		try {
+			if (editing) {
+				await onUpdateLocation(editing.id, payload, form.changeReason || `Updated ${form.name}`);
+				setEditing(null);
+			} else {
+				await onCreateLocation(payload, form.changeReason || `Added location ${form.name}`);
+				setIsCreateOpen(false);
+			}
+		} catch {
+			// Workspace error alert displays error safely
 		}
 	};
 
@@ -95,7 +99,7 @@ export function LocationsMemorySection({
 					No location memory entries yet.
 				</div>
 			) : (
-				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "16px" }}>
+				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "16px" }}>
 					{filtered.map((loc) => (
 						<div key={loc.id} style={{ padding: "16px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: "8px" }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>

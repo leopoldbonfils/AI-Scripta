@@ -14,6 +14,11 @@ export interface MemoryHistorySectionProps {
 		editedValue?: Record<string, any>,
 		changeReason?: string
 	) => Promise<any>;
+	onBatchReviewProposals?: (
+		proposalIds: string[],
+		status: "ACCEPTED" | "REJECTED",
+		changeReason?: string
+	) => Promise<any>;
 	onRestoreVersion: (versionId: string, reason?: string) => Promise<any>;
 	isSaving: boolean;
 }
@@ -22,15 +27,33 @@ export function MemoryHistorySection({
 	proposals,
 	versions,
 	onReviewProposal,
+	onBatchReviewProposals,
 	onRestoreVersion,
 	isSaving,
 }: MemoryHistorySectionProps) {
 	const [editingProposalId, setEditingProposalId] = useState<string | null>(null);
 	const [editJsonDraft, setEditJsonDraft] = useState("");
 	const [jsonError, setJsonError] = useState<string | null>(null);
+	const [selectedProposalIds, setSelectedProposalIds] = useState<string[]>([]);
 
 	const pendingProposals = proposals.filter((p) => p.status === "PENDING");
 	const reviewedProposals = proposals.filter((p) => p.status !== "PENDING");
+
+	const toggleProposalSelection = (id: string) => {
+		setSelectedProposalIds((prev) =>
+			prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+		);
+	};
+
+	const handleBatchReview = async (status: "ACCEPTED" | "REJECTED") => {
+		if (!onBatchReviewProposals || selectedProposalIds.length === 0) return;
+		await onBatchReviewProposals(
+			selectedProposalIds,
+			status,
+			status === "ACCEPTED" ? "Writer batch-approved selected proposals" : "Writer batch-declined selected proposals"
+		);
+		setSelectedProposalIds([]);
+	};
 
 	const startEditing = (p: MemoryUpdateProposal) => {
 		setEditingProposalId(p.id);
@@ -66,11 +89,46 @@ export function MemoryHistorySection({
 					</div>
 				) : (
 					<div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+						{onBatchReviewProposals && (
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px", padding: "10px 12px", backgroundColor: "#f8fafc", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+								<span style={{ fontSize: "12px", fontWeight: 600, color: "#475569" }}>
+									{selectedProposalIds.length} of {pendingProposals.length} selected for batch review
+								</span>
+								<div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+									<button
+										type="button"
+										disabled={isSaving || selectedProposalIds.length === 0}
+										onClick={() => handleBatchReview("REJECTED")}
+										style={{ padding: "5px 10px", fontSize: "12px", fontWeight: 600, borderRadius: "5px", border: "1px solid #fca5a5", backgroundColor: selectedProposalIds.length === 0 ? "#f1f5f9" : "#fef2f2", color: selectedProposalIds.length === 0 ? "#94a3b8" : "#b91c1c", cursor: selectedProposalIds.length === 0 ? "not-allowed" : "pointer" }}
+									>
+										Reject Selected ({selectedProposalIds.length})
+									</button>
+									<button
+										type="button"
+										disabled={isSaving || selectedProposalIds.length === 0}
+										onClick={() => handleBatchReview("ACCEPTED")}
+										style={{ padding: "5px 12px", fontSize: "12px", fontWeight: 600, borderRadius: "5px", border: "none", backgroundColor: selectedProposalIds.length === 0 ? "#cbd5e1" : "#059669", color: "#fff", cursor: selectedProposalIds.length === 0 ? "not-allowed" : "pointer" }}
+									>
+										Approve Selected ({selectedProposalIds.length})
+									</button>
+								</div>
+							</div>
+						)}
 						{pendingProposals.map((p) => (
 							<div key={p.id} style={{ padding: "16px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px solid #fde68a", display: "flex", flexDirection: "column", gap: "10px" }}>
 								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap" }}>
-									<div>
-										<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+									<div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+										{onBatchReviewProposals && (
+											<input
+												type="checkbox"
+												checked={selectedProposalIds.includes(p.id)}
+												onChange={() => toggleProposalSelection(p.id)}
+												aria-label={`Select proposal ${p.targetLabel}`}
+												style={{ marginTop: "4px", width: "15px", height: "15px", accentColor: "#d97706", cursor: "pointer" }}
+											/>
+										)}
+										<div>
+										<div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
 											<span style={{ fontSize: "10.5px", fontWeight: 700, padding: "2px 6px", borderRadius: "4px", backgroundColor: "#d97706", color: "#fff" }}>
 												{p.proposedAction} • {p.targetType}
 											</span>
@@ -82,9 +140,10 @@ export function MemoryHistorySection({
 										<div style={{ fontSize: "12px", color: "#78350f", marginTop: "2px" }}>
 											Reason: {p.changeReason}
 										</div>
+										</div>
 									</div>
 
-									<div style={{ display: "flex", gap: "6px" }}>
+									<div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
 										<button
 											type="button"
 											disabled={isSaving}
@@ -112,7 +171,7 @@ export function MemoryHistorySection({
 									</div>
 								</div>
 
-								<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "11.5px" }}>
+								<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "10px", fontSize: "11.5px" }}>
 									<div style={{ padding: "8px", backgroundColor: "#ffffff", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
 										<strong>Previous Value:</strong>
 										<pre style={{ margin: "4px 0 0", whiteSpace: "pre-wrap", color: "#64748b", fontFamily: "monospace" }}>

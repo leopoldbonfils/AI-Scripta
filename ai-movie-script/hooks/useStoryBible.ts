@@ -24,7 +24,7 @@ export type StoryBibleTab =
 export function useStoryBible(movieId: string) {
 	const [storyBible, setStoryBible] = useState<StoryBible | null>(null);
 	const [activeTab, setActiveTab] = useState<StoryBibleTab>("overview");
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState<boolean>(Boolean(movieId));
 	const [isBuilding, setIsBuilding] = useState(false);
 	const [isAnalyzingContinuity, setIsAnalyzingContinuity] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -214,6 +214,32 @@ export function useStoryBible(movieId: string) {
 		[movieId, loadStoryBible]
 	);
 
+	const batchReviewProposals = useCallback(
+		async (proposalIds: string[], status: "ACCEPTED" | "REJECTED", changeReason?: string) => {
+			if (!movieId || proposalIds.length === 0) return { reviewedCount: 0, proposals: [] };
+			setIsSaving(true);
+			setError(null);
+			try {
+				const res = await storyBibleService.batchReviewProposals(movieId, {
+					proposalIds,
+					status,
+					changeReason,
+				});
+				await loadStoryBible();
+				setToastMessage(
+					`${status === "ACCEPTED" ? "Approved" : "Declined"} ${res.reviewedCount} selected memory proposal(s).`
+				);
+				return res;
+			} catch (err: unknown) {
+				setError(err instanceof Error ? err.message : "Failed to batch review proposals");
+				throw err;
+			} finally {
+				setIsSaving(false);
+			}
+		},
+		[movieId, loadStoryBible]
+	);
+
 	const restoreVersion = useCallback(
 		async (versionId: string, changeReason?: string) => {
 			if (!movieId) return;
@@ -253,6 +279,7 @@ export function useStoryBible(movieId: string) {
 		analyzeContinuity,
 		updateFindingStatus,
 		reviewProposal,
+		batchReviewProposals,
 		restoreVersion,
 	};
 }

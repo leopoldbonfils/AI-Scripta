@@ -51,6 +51,7 @@ export function StoryBibleWorkspace({ movieId, movieTitle }: StoryBibleWorkspace
 		analyzeContinuity,
 		updateFindingStatus,
 		reviewProposal,
+		batchReviewProposals,
 		restoreVersion,
 	} = useStoryBible(movieId);
 
@@ -346,6 +347,7 @@ export function StoryBibleWorkspace({ movieId, movieTitle }: StoryBibleWorkspace
 						proposals={storyBible.proposals}
 						versions={storyBible.versions}
 						onReviewProposal={reviewProposal}
+						onBatchReviewProposals={batchReviewProposals}
 						onRestoreVersion={restoreVersion}
 						isSaving={isSaving}
 					/>

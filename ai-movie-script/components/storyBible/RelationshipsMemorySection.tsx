@@ -45,12 +45,16 @@ export function RelationshipsMemorySection({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		const { changeReason, ...payload } = form;
-		if (editingRel) {
-			await onUpdateRelationship(editingRel.id, payload, changeReason || "Updated relationship memory");
-			setEditingRel(null);
-		} else {
-			await onCreateRelationship(payload, changeReason || "Added relationship memory");
-			setIsCreateOpen(false);
+		try {
+			if (editingRel) {
+				await onUpdateRelationship(editingRel.id, payload, changeReason || "Updated relationship memory");
+				setEditingRel(null);
+			} else {
+				await onCreateRelationship(payload, changeReason || "Added relationship memory");
+				setIsCreateOpen(false);
+			}
+		} catch {
+			// Workspace error alert displays error safely
 		}
 	};
 
@@ -99,7 +103,7 @@ export function RelationshipsMemorySection({
 					No relationships found.
 				</div>
 			) : (
-				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "16px" }}>
+				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "16px" }}>
 					{filtered.map((rel) => (
 						<div key={rel.id} style={{ padding: "16px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: "10px" }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>

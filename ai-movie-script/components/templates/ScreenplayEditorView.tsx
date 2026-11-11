@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useScreenplay } from "../../hooks/useScreenplay";
 import { useAI } from "../../hooks/useAI";
 import { screenplayService } from "../../services/screenplayService";
@@ -463,6 +464,28 @@ export function ScreenplayEditorView({
 				</div>
 
 				<div className="screenplay-v2-actions">
+					{movieId && (
+						<Link
+							href={`/movies/${movieId}/generate`}
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: "5px",
+								padding: "7px 12px",
+								borderRadius: "16px",
+								background: "#fffbeb",
+								border: "1px solid #f59e0b",
+								color: "#b45309",
+								fontSize: "12.5px",
+								fontWeight: "600",
+								textDecoration: "none",
+							}}
+							title="Open Phase E Multi-Stage Screenplay Generation Studio"
+						>
+							<FaClapperboard size={12} />
+							<span>AI Full Screenplay</span>
+						</Link>
+					)}
 					{/* Version Snapshot button */}
 					<button
 						type="button"

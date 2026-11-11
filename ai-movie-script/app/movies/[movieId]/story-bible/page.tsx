@@ -45,7 +45,7 @@ export default function MovieStoryBiblePage() {
 				onUpdate={updateMovie}
 				onDelete={deleteMovie}
 			/>
-			<div style={{ maxWidth: "1220px", margin: "0 auto", padding: "24px 36px 60px" }}>
+			<div style={{ maxWidth: "1220px", margin: "0 auto", padding: "clamp(14px, 3vw, 24px) clamp(14px, 4vw, 36px) 60px" }}>
 				<StoryBibleWorkspace movieId={movie.id} movieTitle={movie.title} />
 			</div>
 		</div>
