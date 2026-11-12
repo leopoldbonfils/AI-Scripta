@@ -20,11 +20,12 @@ import {
 	FiCpu,
 	FiBook,
 	FiPlay,
+	FiActivity,
 } from "react-icons/fi";
 
 interface MovieHeaderProps {
 	movie: Movie;
-	activeTab?: "outline" | "screenplay" | "export" | "story" | "characters" | "analysis" | "intelligence" | "story-bible" | "generate";
+	activeTab?: "outline" | "screenplay" | "export" | "story" | "characters" | "analysis" | "intelligence" | "story-bible" | "generate" | "script-doctor";
 	onUpdate?: (data: UpdateMovieInput) => Promise<Movie>;
 	onDelete?: () => Promise<void>;
 }
@@ -96,6 +97,7 @@ export function MovieHeader({
 		{ id: "outline", label: "Story Outline", href: `/movies/${movie.id}/outline`, icon: FiLayers },
 		{ id: "generate", label: "Generate Script", href: `/movies/${movie.id}/generate`, icon: FiPlay },
 		{ id: "screenplay", label: "Screenplay Editor", href: `/movies/${movie.id}/screenplay`, icon: FiFileText },
+		{ id: "script-doctor", label: "Script Doctor", href: `/movies/${movie.id}/script-doctor`, icon: FiActivity },
 		{ id: "export", label: "Export Script", href: `/movies/${movie.id}/export`, icon: FiDownload },
 	] as const;
 

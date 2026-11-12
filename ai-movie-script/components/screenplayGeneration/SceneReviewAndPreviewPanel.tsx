@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { GeneratedSceneItem, ScreenplayJobStatus } from "../../types/screenplayGeneration";
 import {
 	FiCheck,
@@ -47,15 +47,10 @@ export function SceneReviewAndPreviewPanel({
 	const [draftLocation, setDraftLocation] = useState("");
 	const [draftScript, setDraftScript] = useState("");
 	const [retryInstructions, setRetryInstructions] = useState("");
+	const [showFullAssembled, setShowFullAssembled] = useState(false);
 
 	const selectedScene =
 		scenes.find((s) => s.id === selectedSceneId) || (scenes.length > 0 ? scenes[0] : null);
-
-	useEffect(() => {
-		if (!selectedScene && scenes.length > 0) {
-			setSelectedSceneId(scenes[0].id);
-		}
-	}, [scenes, selectedScene]);
 
 	if (scenes.length === 0) return null;
 
@@ -219,22 +214,49 @@ export function SceneReviewAndPreviewPanel({
 				</div>
 
 				{viewMode === "FULL_SCREENPLAY" ? (
-					<div
-						style={{
-							backgroundColor: "#fafaf9",
-							border: "1px solid #cbd5e1",
-							borderRadius: "10px",
-							padding: "28px 32px",
-							maxHeight: "640px",
-							overflowY: "auto",
-							fontFamily: "'Courier New', Courier, monospace",
-							fontSize: "13.5px",
-							lineHeight: 1.55,
-							whiteSpace: "pre-wrap",
-							color: "#1e293b",
-						}}
-					>
-						{assembledContent?.trim() || "No screenplay scene scripts have been generated yet."}
+					<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+						<div
+							style={{
+								backgroundColor: "#fafaf9",
+								border: "1px solid #cbd5e1",
+								borderRadius: "10px",
+								padding: "28px 32px",
+								maxHeight: "640px",
+								overflowY: "auto",
+								fontFamily: "'Courier New', Courier, monospace",
+								fontSize: "13.5px",
+								lineHeight: 1.55,
+								whiteSpace: "pre-wrap",
+								color: "#1e293b",
+							}}
+						>
+							{assembledContent?.trim()
+								? showFullAssembled || assembledContent.length <= 25000
+									? assembledContent
+									: `${assembledContent.slice(0, 25000)}\n\n... [Showing first 25,000 of ${assembledContent.length.toLocaleString()} characters for smooth rendering] ...`
+								: "No screenplay scene scripts have been generated yet."}
+						</div>
+						{assembledContent && assembledContent.length > 25000 && (
+							<div style={{ display: "flex", justifyContent: "flex-end" }}>
+								<button
+									type="button"
+									onClick={() => setShowFullAssembled((v) => !v)}
+									style={{
+										padding: "5px 12px",
+										borderRadius: "6px",
+										border: "1px solid #cbd5e1",
+										backgroundColor: "#ffffff",
+										fontSize: "12px",
+										fontWeight: 600,
+										cursor: "pointer",
+									}}
+								>
+									{showFullAssembled
+										? "Collapse Long Draft Preview (25k chars)"
+										: `Expand Full Draft (${assembledContent.length.toLocaleString()} chars)`}
+								</button>
+							</div>
+						)}
 					</div>
 				) : (
 					<div style={{ display: "grid", gridTemplateColumns: "minmax(250px, 310px) 1fr", gap: "16px" }}>

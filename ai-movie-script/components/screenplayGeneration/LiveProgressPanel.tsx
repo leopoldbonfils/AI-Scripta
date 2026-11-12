@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ScreenplayGenerationJob } from "../../types/screenplayGeneration";
+import { StreamConnectionState, StreamStatusBanner } from "../ai/StreamStatusBanner";
 import {
 	formatJobStatusLabel,
 	isJobActivelyPolling,
@@ -23,6 +24,10 @@ interface LiveProgressPanelProps {
 	movieId: string;
 	job: ScreenplayGenerationJob;
 	isBusy: boolean;
+	connectionState?: StreamConnectionState;
+	streamError?: string | null;
+	onRetryStream?: () => void;
+	onCancelStream?: () => void;
 	onPause: () => Promise<void>;
 	onResume: () => Promise<void>;
 	onCancel: () => Promise<void>;
@@ -40,6 +45,10 @@ export function LiveProgressPanel({
 	movieId,
 	job,
 	isBusy,
+	connectionState = "IDLE",
+	streamError,
+	onRetryStream,
+	onCancelStream,
 	onPause,
 	onResume,
 	onCancel,
@@ -227,6 +236,16 @@ export function LiveProgressPanel({
 					/>
 				</div>
 			</div>
+
+			{connectionState !== "IDLE" && (
+				<StreamStatusBanner
+					state={connectionState}
+					stageLabel={job.currentStage || formatJobStatusLabel(job.status)}
+					errorMessage={streamError}
+					onCancel={onCancelStream}
+					onRetry={onRetryStream}
+				/>
+			)}
 
 			{/* Stage Checkpoints */}
 			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "8px" }}>

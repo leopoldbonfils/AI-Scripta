@@ -27,8 +27,12 @@ export function ScreenplayGenerationWorkspace({
 		isBusy,
 		error,
 		notice,
+		connectionState,
+		streamError,
 		overwritePromptScene,
 		clearOverwritePrompt,
+		retryStream,
+		cancelStreamConnection,
 		selectJobFromHistory,
 		startGeneration,
 		updateAct,
@@ -106,6 +110,10 @@ export function ScreenplayGenerationWorkspace({
 						movieId={movieId}
 						job={job}
 						isBusy={isBusy}
+						connectionState={connectionState}
+						streamError={streamError}
+						onRetryStream={retryStream}
+						onCancelStream={cancelStreamConnection}
 						onPause={pauseGeneration}
 						onResume={resumeGeneration}
 						onCancel={cancelGeneration}

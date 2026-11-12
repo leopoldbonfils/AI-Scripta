@@ -54,6 +54,8 @@ export const API_ENDPOINTS = {
 	},
 	AI: {
 		QUOTA: "/ai/quota",
+		USAGE: "/ai/usage",
+		STREAM_GENERATE: "/ai/stream/generate",
 		ANALYZE_INPUT: "/ai/analyze-input",
 		ANALYSES: "/ai/analyses",
 		ANALYSIS_BY_ID: (id: string) => `/ai/analyses/${id}`,
@@ -114,6 +116,8 @@ export const API_ENDPOINTS = {
 		START: (movieId: string) => `/movies/${movieId}/screenplay-generation/start`,
 		GET_JOB: (movieId: string, jobId: string) =>
 			`/movies/${movieId}/screenplay-generation/jobs/${jobId}`,
+		STREAM_JOB: (movieId: string, jobId: string) =>
+			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/stream`,
 		UPDATE_ACT: (movieId: string, jobId: string, actId: string) =>
 			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/acts/${actId}`,
 		APPROVE_ACTS: (movieId: string, jobId: string) =>
@@ -132,6 +136,31 @@ export const API_ENDPOINTS = {
 			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/scenes/${sceneId}/retry`,
 		COMMIT: (movieId: string, jobId: string) =>
 			`/movies/${movieId}/screenplay-generation/jobs/${jobId}/commit`,
+	},
+	SCRIPT_DOCTOR: {
+		DASHBOARD: (movieId: string) => `/movies/${movieId}/script-doctor/dashboard`,
+		ANALYSES: (movieId: string) => `/movies/${movieId}/script-doctor/analyses`,
+		ANALYZE: (movieId: string) => `/movies/${movieId}/script-doctor/analyze`,
+		CONTINUITY_CHECK: (movieId: string) => `/movies/${movieId}/script-doctor/continuity-check`,
+		UPDATE_FINDING: (movieId: string, analysisId: string, findingId: string) =>
+			`/movies/${movieId}/script-doctor/analyses/${analysisId}/findings/${findingId}`,
+		SUGGESTIONS: (movieId: string) => `/movies/${movieId}/script-doctor/suggestions`,
+		REWRITE: (movieId: string) => `/movies/${movieId}/script-doctor/rewrite`,
+		POLISH: (movieId: string) => `/movies/${movieId}/script-doctor/polish`,
+		DIALOGUE: (movieId: string) => `/movies/${movieId}/script-doctor/dialogue`,
+		GET_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}`,
+		EDIT_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}`,
+		REGENERATE_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}/regenerate`,
+		ACCEPT_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}/accept`,
+		REJECT_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}/reject`,
+		DISMISS_SUGGESTION: (movieId: string, suggestionId: string) =>
+			`/movies/${movieId}/script-doctor/suggestions/${suggestionId}/dismiss`,
+		COMPARE_VERSIONS: (movieId: string) => `/movies/${movieId}/script-doctor/versions/compare`,
 	},
 	HEALTH: "/health",
 } as const;

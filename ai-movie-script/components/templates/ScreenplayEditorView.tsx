@@ -465,26 +465,47 @@ export function ScreenplayEditorView({
 
 				<div className="screenplay-v2-actions">
 					{movieId && (
-						<Link
-							href={`/movies/${movieId}/generate`}
-							style={{
-								display: "flex",
-								alignItems: "center",
-								gap: "5px",
-								padding: "7px 12px",
-								borderRadius: "16px",
-								background: "#fffbeb",
-								border: "1px solid #f59e0b",
-								color: "#b45309",
-								fontSize: "12.5px",
-								fontWeight: "600",
-								textDecoration: "none",
-							}}
-							title="Open Phase E Multi-Stage Screenplay Generation Studio"
-						>
-							<FaClapperboard size={12} />
-							<span>AI Full Screenplay</span>
-						</Link>
+						<>
+							<Link
+								href={`/movies/${movieId}/generate`}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "5px",
+									padding: "7px 12px",
+									borderRadius: "16px",
+									background: "#fffbeb",
+									border: "1px solid #f59e0b",
+									color: "#b45309",
+									fontSize: "12.5px",
+									fontWeight: "600",
+									textDecoration: "none",
+								}}
+								title="Open Phase E Multi-Stage Screenplay Generation Studio"
+							>
+								<FaClapperboard size={12} />
+								<span>AI Full Screenplay</span>
+							</Link>
+							<Link
+								href={`/movies/${movieId}/script-doctor`}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "5px",
+									padding: "7px 12px",
+									borderRadius: "16px",
+									background: "#f8fafc",
+									border: "1px solid #cbd5e1",
+									color: "#0f172a",
+									fontSize: "12.5px",
+									fontWeight: "600",
+									textDecoration: "none",
+								}}
+								title="Open Phase F Professional Script Doctor (Analyze, Diff & Review)"
+							>
+								<span>Script Doctor</span>
+							</Link>
+						</>
 					)}
 					{/* Version Snapshot button */}
 					<button

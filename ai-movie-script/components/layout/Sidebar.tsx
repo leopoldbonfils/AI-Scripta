@@ -15,6 +15,7 @@ import {
 	FiCpu,
 	FiBook,
 	FiFileText,
+	FiActivity,
 } from "react-icons/fi";
 import { FaClapperboard } from "react-icons/fa6";
 import { useAuth } from "../auth/AuthProvider";
@@ -35,6 +36,7 @@ const navItems = [
 	{ label: "Story Intelligence", href: "/intelligence", icon: FiCpu },
 	{ label: "Story Bible", href: "/story-bible", icon: FiBook },
 	{ label: "Generate Script", href: "/generate-screenplay", icon: FiFileText },
+	{ label: "Script Doctor", href: "/script-doctor", icon: FiActivity },
 	{ label: "Ideas", href: "/ideas", icon: FiZap },
 	{ label: "Characters", href: "/characters", icon: FiUsers },
 	{ label: "Templates", href: "/templates", icon: FiLayers },

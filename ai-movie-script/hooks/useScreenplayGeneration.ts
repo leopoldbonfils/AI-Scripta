@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiClientError } from "../lib/api";
+import { api, ApiClientError } from "../lib/api";
+import { API_ENDPOINTS } from "../lib/constants";
+import type { StreamConnectionState } from "../components/ai/StreamStatusBanner";
 import {
 	isJobActivelyPolling,
 	screenplayGenerationService,
@@ -23,6 +25,9 @@ export function useScreenplayGeneration(movieId: string) {
 	const [isBusy, setIsBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
+	const [connectionState, setConnectionState] = useState<StreamConnectionState>("IDLE");
+	const [streamError, setStreamError] = useState<string | null>(null);
+	const [streamRetryTick, setStreamRetryTick] = useState(0);
 	const [overwritePromptScene, setOverwritePromptScene] = useState<{
 		sceneId: string;
 		sceneTitle: string;
@@ -30,6 +35,8 @@ export function useScreenplayGeneration(movieId: string) {
 	} | null>(null);
 
 	const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const streamAbortRef = useRef<AbortController | null>(null);
+	const inFlightRef = useRef<Set<string>>(new Set());
 	const mountedRef = useRef(true);
 
 	const clearPolling = useCallback(() => {
@@ -39,9 +46,18 @@ export function useScreenplayGeneration(movieId: string) {
 		}
 	}, []);
 
-	const loadInitial = useCallback(async () => {
+	const clearStreaming = useCallback(() => {
+		if (streamAbortRef.current) {
+			streamAbortRef.current.abort();
+			streamAbortRef.current = null;
+		}
+	}, []);
+
+	const loadInitial = useCallback(async (showSpinner = true) => {
 		if (!movieId) return;
-		setIsLoading(true);
+		if (showSpinner) {
+			setIsLoading(true);
+		}
 		setError(null);
 		try {
 			const [readinessData, latestData] = await Promise.all([
@@ -70,6 +86,8 @@ export function useScreenplayGeneration(movieId: string) {
 				setJob(fresh);
 				if (!isJobActivelyPolling(fresh.status)) {
 					clearPolling();
+					clearStreaming();
+					setConnectionState("COMPLETED");
 					const latestData = await screenplayGenerationService.getLatest(movieId);
 					if (mountedRef.current) setHistory(latestData.history || []);
 				}
@@ -77,27 +95,182 @@ export function useScreenplayGeneration(movieId: string) {
 				// Avoid breaking UI on a single transient poll hiccup
 			}
 		},
-		[movieId, job?.id, clearPolling]
+		[movieId, job?.id, clearPolling, clearStreaming]
 	);
 
 	useEffect(() => {
 		mountedRef.current = true;
-		loadInitial();
+		let active = true;
+		void (async () => {
+			await Promise.resolve();
+			if (active) {
+				await loadInitial(false);
+			}
+		})();
 		return () => {
+			active = false;
 			mountedRef.current = false;
 			clearPolling();
+			clearStreaming();
 		};
-	}, [loadInitial, clearPolling]);
+	}, [loadInitial, clearPolling, clearStreaming]);
 
 	useEffect(() => {
 		clearPolling();
-		if (job?.id && isJobActivelyPolling(job.status)) {
-			pollTimerRef.current = setInterval(() => {
-				void refreshJob(job.id);
-			}, 1400);
+		clearStreaming();
+
+		if (!movieId || !job?.id || !isJobActivelyPolling(job.status)) {
+			return () => {
+				clearPolling();
+				clearStreaming();
+			};
 		}
-		return clearPolling;
-	}, [job?.id, job?.status, refreshJob, clearPolling]);
+
+		const activeJobId = job.id;
+		let fallbackTimerStarted = false;
+
+		const startVisibilityAwarePolling = (stateLabel: StreamConnectionState = "POLLING") => {
+			if (fallbackTimerStarted || !mountedRef.current) return;
+			fallbackTimerStarted = true;
+			setConnectionState(stateLabel);
+			const isHidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+			if (!isHidden) {
+				pollTimerRef.current = setInterval(() => {
+					if (typeof document === "undefined" || document.visibilityState === "visible") {
+						void refreshJob(activeJobId);
+					}
+				}, 2200);
+			}
+		};
+
+		const connectStream = () => {
+			if (!mountedRef.current) return;
+			if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+				return;
+			}
+			clearStreaming();
+			const controller = new AbortController();
+			streamAbortRef.current = controller;
+			setConnectionState("CONNECTING");
+			setStreamError(null);
+
+			let lastCompletedCount = -1;
+			let lastStatus = "";
+
+			void api
+				.streamSSE<{ id?: string; status?: string; job?: ScreenplayGenerationJob }>(
+					API_ENDPOINTS.SCREENPLAY_GENERATION.STREAM_JOB(movieId, activeJobId),
+					{ method: "GET", signal: controller.signal },
+					{
+						onProgress: (payload) => {
+							if (!mountedRef.current || controller.signal.aborted) return;
+							setConnectionState("STREAMING");
+							const pStatus = typeof payload.status === "string" ? payload.status : undefined;
+							const pCompleted =
+								typeof payload.completedScenes === "number" ? payload.completedScenes : undefined;
+							setJob((prev) =>
+								prev && prev.id === activeJobId
+									? {
+											...prev,
+											status: (pStatus as ScreenplayGenerationJob["status"]) || prev.status,
+											progressPercent:
+												typeof payload.progressPercent === "number"
+													? payload.progressPercent
+													: prev.progressPercent,
+											currentStage:
+												typeof payload.currentStage === "string"
+													? payload.currentStage
+													: prev.currentStage,
+											currentActNumber:
+												typeof payload.currentActNumber === "number" || payload.currentActNumber === null
+													? payload.currentActNumber
+													: prev.currentActNumber,
+											currentSceneNumber:
+												typeof payload.currentSceneNumber === "number" || payload.currentSceneNumber === null
+													? payload.currentSceneNumber
+													: prev.currentSceneNumber,
+											completedScenes: pCompleted ?? prev.completedScenes,
+											failedScenes:
+												typeof payload.failedScenes === "number"
+													? payload.failedScenes
+													: prev.failedScenes,
+											totalTokens:
+												typeof payload.totalTokens === "number" ? payload.totalTokens : prev.totalTokens,
+											estimatedCost:
+												typeof payload.estimatedCost === "number"
+													? payload.estimatedCost
+													: prev.estimatedCost,
+											lastError:
+												typeof payload.lastError === "string" || payload.lastError === null
+													? payload.lastError
+													: prev.lastError,
+									  }
+									: prev
+							);
+							if (
+								(pCompleted !== undefined && pCompleted !== lastCompletedCount) ||
+								(pStatus && pStatus !== lastStatus)
+							) {
+								lastCompletedCount = pCompleted ?? lastCompletedCount;
+								lastStatus = pStatus ?? lastStatus;
+								void refreshJob(activeJobId);
+							}
+						},
+						onComplete: (payload) => {
+							if (!mountedRef.current) return;
+							clearPolling();
+							if (payload?.job) {
+								setJob(payload.job);
+							} else {
+								void refreshJob(activeJobId);
+							}
+							setConnectionState("COMPLETED");
+						},
+						onError: (err) => {
+							if (!mountedRef.current || controller.signal.aborted) return;
+							setStreamError(err.message);
+							startVisibilityAwarePolling("POLLING");
+						},
+					}
+				)
+				.catch((err: unknown) => {
+					if (!mountedRef.current || controller.signal.aborted) return;
+					setStreamError(err instanceof Error ? err.message : "Live SSE disconnected; switched to polling.");
+					startVisibilityAwarePolling("POLLING");
+				});
+		};
+
+		connectStream();
+
+		const handleVisibilityChange = () => {
+			if (!mountedRef.current) return;
+			if (document.visibilityState === "hidden") {
+				clearPolling();
+				clearStreaming();
+			} else {
+				void refreshJob(activeJobId);
+				if (fallbackTimerStarted) {
+					clearPolling();
+					fallbackTimerStarted = false;
+					startVisibilityAwarePolling("POLLING");
+				} else {
+					connectStream();
+				}
+			}
+		};
+
+		if (typeof document !== "undefined") {
+			document.addEventListener("visibilitychange", handleVisibilityChange);
+		}
+
+		return () => {
+			if (typeof document !== "undefined") {
+				document.removeEventListener("visibilitychange", handleVisibilityChange);
+			}
+			clearPolling();
+			clearStreaming();
+		};
+	}, [movieId, job?.id, job?.status, streamRetryTick, refreshJob, clearPolling, clearStreaming]);
 
 	const selectJobFromHistory = useCallback(
 		async (jobId: string) => {
@@ -120,6 +293,8 @@ export function useScreenplayGeneration(movieId: string) {
 
 	const startGeneration = useCallback(
 		async (request: StartScreenplayGenerationRequest) => {
+			if (inFlightRef.current.has("start")) return undefined;
+			inFlightRef.current.add("start");
 			setIsBusy(true);
 			setError(null);
 			setNotice(null);
@@ -136,6 +311,7 @@ export function useScreenplayGeneration(movieId: string) {
 				setError(err instanceof Error ? err.message : "Failed to start generation job");
 				throw err;
 			} finally {
+				inFlightRef.current.delete("start");
 				setIsBusy(false);
 			}
 		},
@@ -295,7 +471,8 @@ export function useScreenplayGeneration(movieId: string) {
 
 	const commitScreenplay = useCallback(
 		async (options?: { title?: string; syncOutlineActsAndScenes?: boolean }) => {
-			if (!job) return null;
+			if (!job || inFlightRef.current.has("commit")) return null;
+			inFlightRef.current.add("commit");
 			setIsBusy(true);
 			setError(null);
 			try {
@@ -315,11 +492,22 @@ export function useScreenplayGeneration(movieId: string) {
 				);
 				return null;
 			} finally {
+				inFlightRef.current.delete("commit");
 				setIsBusy(false);
 			}
 		},
 		[movieId, job]
 	);
+
+	const retryStream = useCallback(() => {
+		setStreamError(null);
+		setStreamRetryTick((n) => n + 1);
+	}, []);
+
+	const cancelStreamConnection = useCallback(() => {
+		clearStreaming();
+		setConnectionState("CANCELLED");
+	}, [clearStreaming]);
 
 	return {
 		readiness,
@@ -329,11 +517,15 @@ export function useScreenplayGeneration(movieId: string) {
 		isBusy,
 		error,
 		notice,
+		connectionState,
+		streamError,
 		overwritePromptScene,
 		clearOverwritePrompt: () => setOverwritePromptScene(null),
 		setNotice,
 		loadInitial,
 		refreshJob,
+		retryStream,
+		cancelStreamConnection,
 		selectJobFromHistory,
 		startGeneration,
 		updateAct,

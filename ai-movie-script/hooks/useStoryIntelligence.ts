@@ -32,30 +32,38 @@ export function useStoryIntelligence(initialMovieId?: string) {
 	const [error, setError] = useState<string | null>(null);
 	const [applySuccessMessage, setApplySuccessMessage] = useState<string | null>(null);
 	const autoLoadedMovieRef = useRef<string | null>(null);
+	const inFlightGenerateRef = useRef<Promise<StoryIntelligenceResult> | null>(null);
+	const inFlightApplyRef = useRef<Promise<ApplyIntelligenceDecisionResponse | undefined> | null>(null);
 
 	const generateIntelligence = useCallback(
 		async (params: GenerateStoryIntelligenceRequest) => {
+			if (inFlightGenerateRef.current) return inFlightGenerateRef.current;
 			setIsLoading(true);
 			setError(null);
 			setApplySuccessMessage(null);
-			try {
-				const res = await storyIntelligenceService.generate({
-					...params,
-					movieId: params.movieId || initialMovieId,
-				});
-				setIntelligence(res.intelligence);
-				if (res.intelligence.characters.length > 0) {
-					setSelectedCharacterId(res.intelligence.characters[0].id);
+			const promise = (async () => {
+				try {
+					const res = await storyIntelligenceService.generate({
+						...params,
+						movieId: params.movieId || initialMovieId,
+					});
+					setIntelligence(res.intelligence);
+					if (res.intelligence.characters.length > 0) {
+						setSelectedCharacterId(res.intelligence.characters[0].id);
+					}
+					setHistory((prev) => [res.intelligence, ...prev.filter((h) => h.intelligenceId !== res.intelligence.intelligenceId)]);
+					return res.intelligence;
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : "Failed to generate Story & Character Intelligence";
+					setError(msg);
+					throw err;
+				} finally {
+					inFlightGenerateRef.current = null;
+					setIsLoading(false);
 				}
-				setHistory((prev) => [res.intelligence, ...prev.filter((h) => h.intelligenceId !== res.intelligence.intelligenceId)]);
-				return res.intelligence;
-			} catch (err: unknown) {
-				const msg = err instanceof Error ? err.message : "Failed to generate Story & Character Intelligence";
-				setError(msg);
-				throw err;
-			} finally {
-				setIsLoading(false);
-			}
+			})();
+			inFlightGenerateRef.current = promise;
+			return promise;
 		},
 		[initialMovieId]
 	);
@@ -165,20 +173,26 @@ export function useStoryIntelligence(initialMovieId?: string) {
 	const applyToProject = useCallback(
 		async (params: ApplyIntelligenceDecisionRequest): Promise<ApplyIntelligenceDecisionResponse | undefined> => {
 			if (!intelligence) return;
+			if (inFlightApplyRef.current) return inFlightApplyRef.current;
 			setIsApplying(true);
 			setError(null);
 			setApplySuccessMessage(null);
-			try {
-				const res = await storyIntelligenceService.applyToProject(intelligence.intelligenceId, params);
-				setApplySuccessMessage(res.message);
-				return res;
-			} catch (err: unknown) {
-				const msg = err instanceof Error ? err.message : "Failed to apply intelligence to movie project";
-				setError(msg);
-				throw err;
-			} finally {
-				setIsApplying(false);
-			}
+			const promise = (async () => {
+				try {
+					const res = await storyIntelligenceService.applyToProject(intelligence.intelligenceId, params);
+					setApplySuccessMessage(res.message);
+					return res;
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : "Failed to apply intelligence to movie project";
+					setError(msg);
+					throw err;
+				} finally {
+					inFlightApplyRef.current = null;
+					setIsApplying(false);
+				}
+			})();
+			inFlightApplyRef.current = promise;
+			return promise;
 		},
 		[intelligence]
 	);

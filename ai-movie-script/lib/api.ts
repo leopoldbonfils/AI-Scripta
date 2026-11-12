@@ -33,7 +33,22 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
 	body?: unknown;
 	params?: Record<string, string | number | boolean | undefined | null>;
 	skipAuth?: boolean;
+	timeoutMs?: number;
 	_retry?: boolean;
+}
+
+export interface StreamSSECallbacks<TComplete = unknown> {
+	onStage?: (payload: { stage: string; message: string; generationId?: string }) => void;
+	onDelta?: (payload: { delta: string; accumulatedLength: number }) => void;
+	onProgress?: (payload: Record<string, unknown>) => void;
+	onComplete?: (payload: TComplete) => void;
+	onError?: (payload: {
+		code?: string;
+		message: string;
+		isPartial?: boolean;
+		partialCharsReceived?: number;
+		retryable?: boolean;
+	}) => void;
 }
 
 class ApiClient {
@@ -122,7 +137,16 @@ class ApiClient {
 	 * Core request executor
 	 */
 	public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-		const { body, params, skipAuth = false, _retry = false, headers: customHeaders, ...fetchOptions } = options;
+		const {
+			body,
+			params,
+			skipAuth = false,
+			timeoutMs = 65000,
+			_retry = false,
+			headers: customHeaders,
+			signal: callerSignal,
+			...fetchOptions
+		} = options;
 
 		const url = this.buildUrl(path, params);
 
@@ -144,20 +168,56 @@ class ApiClient {
 			}
 		}
 
+		const abortCtrl = new AbortController();
+		let didTimeout = false;
+		const timeoutHandle =
+			timeoutMs > 0
+				? setTimeout(() => {
+						didTimeout = true;
+						abortCtrl.abort();
+				  }, timeoutMs)
+				: null;
+
+		const onCallerAbort = () => abortCtrl.abort();
+		if (callerSignal) {
+			if (callerSignal.aborted) {
+				abortCtrl.abort();
+			} else {
+				callerSignal.addEventListener("abort", onCallerAbort, { once: true });
+			}
+		}
+
 		let response: Response;
 		try {
 			response = await fetch(url, {
 				...fetchOptions,
 				headers,
+				signal: abortCtrl.signal,
 				body: body !== undefined ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
 			});
 		} catch (networkError) {
+			if (timeoutHandle) clearTimeout(timeoutHandle);
+			callerSignal?.removeEventListener("abort", onCallerAbort);
+			if (didTimeout) {
+				throw new ApiClientError(
+					`Request timed out after ${Math.round(timeoutMs / 1000)}s. Please retry.`,
+					408,
+					undefined,
+					networkError
+				);
+			}
+			if (callerSignal?.aborted) {
+				throw new ApiClientError("Request was cancelled.", 499, undefined, networkError);
+			}
 			throw new ApiClientError(
 				"Unable to connect to FilmForge backend server. Please check your network connection.",
 				0,
 				undefined,
 				networkError
 			);
+		} finally {
+			if (timeoutHandle) clearTimeout(timeoutHandle);
+			callerSignal?.removeEventListener("abort", onCallerAbort);
 		}
 
 		// Handle 401 Unauthorized with token refresh rotation
@@ -290,6 +350,151 @@ class ApiClient {
 		}
 
 		return await response.blob();
+	}
+
+	/**
+	 * Reliable Server-Sent Events (SSE) stream consumer over fetch + ReadableStream.
+	 * Supports POST or GET, Bearer token refresh, AbortSignal cancellation, and frame parsing.
+	 */
+	public async streamSSE<TComplete = unknown>(
+		path: string,
+		options: {
+			method?: "GET" | "POST";
+			body?: unknown;
+			params?: Record<string, string | number | boolean | undefined | null>;
+			signal?: AbortSignal;
+			_retry?: boolean;
+		},
+		callbacks: StreamSSECallbacks<TComplete>
+	): Promise<void> {
+		const method = options.method || "POST";
+		const url = this.buildUrl(path, options.params);
+		const headers: Record<string, string> = {
+			Accept: "text/event-stream",
+		};
+		if (options.body !== undefined) {
+			headers["Content-Type"] = "application/json";
+		}
+		const token = authTokens.getAccessToken();
+		if (token) {
+			headers["Authorization"] = `Bearer ${token}`;
+		}
+
+		let response: Response;
+		try {
+			response = await fetch(url, {
+				method,
+				headers,
+				signal: options.signal,
+				body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+			});
+		} catch (err) {
+			if (options.signal?.aborted) {
+				throw new ApiClientError("Stream cancelled by user.", 499, undefined, err);
+			}
+			throw new ApiClientError("Unable to open AI stream connection.", 0, undefined, err);
+		}
+
+		if (response.status === 401 && !options._retry) {
+			const refreshed = await this.refreshAccessToken();
+			if (refreshed) {
+				return this.streamSSE(path, { ...options, _retry: true }, callbacks);
+			}
+		}
+
+		if (!response.ok || !response.body) {
+			let msg = `Stream request failed with status ${response.status}`;
+			try {
+				const errJson = (await response.json()) as ApiErrorResponse;
+				if (errJson.message) msg = errJson.message;
+			} catch {
+				// fallback message
+			}
+			throw new ApiClientError(msg, response.status);
+		}
+
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = "";
+		let receivedTerminalEvent = false;
+
+		const dispatchFrame = (rawFrame: string) => {
+			let eventName = "message";
+			const dataLines: string[] = [];
+			for (const line of rawFrame.split("\n")) {
+				if (line.startsWith("event:")) {
+					eventName = line.slice(6).trim();
+				} else if (line.startsWith("data:")) {
+					dataLines.push(line.slice(5).trim());
+				}
+			}
+			if (dataLines.length === 0) return;
+			const rawData = dataLines.join("\n");
+			let parsed: unknown = rawData;
+			try {
+				parsed = JSON.parse(rawData);
+			} catch {
+				// leave as text
+			}
+
+			if (eventName === "stage") {
+				callbacks.onStage?.(parsed as { stage: string; message: string; generationId?: string });
+			} else if (eventName === "delta") {
+				callbacks.onDelta?.(parsed as { delta: string; accumulatedLength: number });
+			} else if (eventName === "progress") {
+				callbacks.onProgress?.(parsed as Record<string, unknown>);
+			} else if (eventName === "complete" || eventName === "done") {
+				receivedTerminalEvent = true;
+				callbacks.onComplete?.(parsed as TComplete);
+			} else if (eventName === "error") {
+				receivedTerminalEvent = true;
+				callbacks.onError?.(
+					parsed as {
+						code?: string;
+						message: string;
+						isPartial?: boolean;
+						partialCharsReceived?: number;
+						retryable?: boolean;
+					}
+				);
+			}
+		};
+
+		try {
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
+
+				let boundaryIdx = buffer.indexOf("\n\n");
+				while (boundaryIdx !== -1) {
+					const frame = buffer.slice(0, boundaryIdx).trim();
+					buffer = buffer.slice(boundaryIdx + 2);
+					if (frame) dispatchFrame(frame);
+					boundaryIdx = buffer.indexOf("\n\n");
+				}
+			}
+
+			if (buffer.trim()) {
+				dispatchFrame(buffer.trim());
+			}
+
+			if (!receivedTerminalEvent && !options.signal?.aborted) {
+				callbacks.onError?.({
+					code: "STREAM_TRUNCATED",
+					message: "Connection closed before final completion event was received. Results may be incomplete.",
+					isPartial: true,
+					retryable: true,
+				});
+			}
+		} catch (streamErr) {
+			if (options.signal?.aborted) {
+				throw new ApiClientError("Stream cancelled.", 499, undefined, streamErr);
+			}
+			throw new ApiClientError("Stream interrupted unexpectedly.", 0, undefined, streamErr);
+		} finally {
+			reader.releaseLock();
+		}
 	}
 }
 
